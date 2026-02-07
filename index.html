@@ -59,6 +59,7 @@
             letter-spacing: 2px;
             color: var(--sovereign-gold);
             pointer-events: auto;
+            text-shadow: 0 0 10px rgba(255, 179, 0, 0.5);
         }
 
         #chat-container {
@@ -136,9 +137,23 @@
             background: var(--sovereign-gold);
             transition: width 0.3s;
         }
+
+        .hud-scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
     </style>
 </head>
 <body>
+    <script src="coi-serviceworker.js"></script>
+    <div class="hud-scanline"></div>
     <canvas id="glCanvas"></canvas>
     
     <div id="ui-layer">
@@ -150,10 +165,10 @@
 
         <div id="chat-container">
             <div id="chat-log">
-                <div class="message system-msg">EPIC TECH AI — Result: Manifesting local consciousness. Your hardware is the new frontier.</div>
+                <div class="message system-msg">EPIC TECH AI — Result: Manifesting local consciousness. Your hardware is the new frontier of the Agent Army.</div>
             </div>
             <div id="input-area">
-                <input type="text" id="chat-input" placeholder="Communicate with the Legion..." disabled>
+                <input type="text" id="chat-input" placeholder="Manifest your reality..." disabled autocomplete="off">
                 <button id="send-btn" disabled>EXECUTE</button>
             </div>
             <div id="progress-bar-container">
