@@ -1,160 +1,306 @@
-// Main application for Epic Tech AI 3D Chat
-import * as THREE from 'three';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
-import { GodRaysShader } from 'three/examples/jsm/shaders/GodRaysShader.js';
-import TroikaText from 'troika-three-text';
-import gsap from 'gsap';
-import Howler from 'howler';
-import io from 'socket.io-client';
+// main.js — Epic Tech AI 3D Chat Experience
+// 🌌✨🔥💯
 
-// Global variables
+// --- CONFIGURATION ---
+const CONFIG = {
+  particleCount: 800,
+  colors: [0xff006e, 0x8338ec, 0x3a86ff, 0xffbe0b, 0x06d6a0], // Neon rainbow + teal
+  bgColors: [0x0a0a12, 0x120a18, 0x0a1218], // Deep space vibes
+  godraysIntensity: 0.8,
+  bloomStrength: 1.2,
+  bloomRadius: 0.4,
+  bloomThreshold: 0.1,
+};
+
+// --- DOM ELEMENTS ---
+const canvasContainer = document.getElementById('canvas-container');
+const messagesContainer = document.getElementById('messages-container');
+const messageInput = document.getElementById('message-input');
+const sendBtn = document.getElementById('send-btn');
+const loadingIndicator = document.getElementById('loading-indicator');
+const audioContainer = document.getElementById('audio-container');
+
+// --- THREE.JS SETUP ---
 let scene, camera, renderer, composer;
-let bloomPass, godRaysPass;
-let chatMessages = [];
-let isLoading = true;
-let socket;
+let particles, particleSystem;
+let godraysPass, bloomPass, renderPass;
+let clock = new THREE.Clock();
+let floatingTexts = [];
 
-// Initialize the application
-document.addEventListener('DOMContentLoaded', () => {
-  initThreeJS();
-  initChat();
-  initSocketIO();
-  initAudio();
-  hideLoadingIndicator();
-});
+// Audio system (Howler.js)
+const soundEffects = {
+  send: new Howl({
+    src: ['https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3'], // Short "whoosh"
+    volume: 0.6,
+  }),
+  receive: new Howl({
+    src: ['https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3'], // "pop"
+    volume: 0.5,
+  }),
+  glitch: new Howl({
+    src: ['https://assets.mixkit.co/active_storage/sfx/2010/2010-preview.mp3'], // Glitch
+    volume: 0.4,
+  }),
+};
 
-// Initialize Three.js scene with post-processing
-function initThreeJS() {
-  const container = document.getElementById('canvas-container');
-  
-  // Scene setup
+// --- INIT THREE.JS ---
+function initThree() {
+  // Scene
   scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x000000, 1, 100);
-  
-  // Camera setup
+  scene.background = new THREE.Color(CONFIG.bgColors[0]);
+  scene.fog = new THREE.FogExp2(CONFIG.bgColors[0], 0.02);
+
+  // Camera
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 30;
-  
-  // Renderer setup
+
+  // Renderer
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
-  container.appendChild(renderer.domElement);
-  
-  // Post-processing setup
-  composer = new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene, camera));
-  
-  // Bloom pass for neon effect
-  bloomPass = new UnrealBloomPass(
+  renderer.toneMapping = THREE.ReinhardToneMapping;
+  canvasContainer.appendChild(renderer.domElement);
+
+  // Postprocessing
+  const renderScene = new THREE.RenderPass(scene, camera);
+  const bloomPass = new THREE.UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    1.5,
-    0.4,
-    0.85
+    CONFIG.bloomStrength,
+    CONFIG.bloomRadius,
+    CONFIG.bloomThreshold
   );
+  const godraysPass = new THREE.ShaderPass(THREE.GodRaysShader);
+  godraysPass.uniforms['sunPosition'].value.set(0.5, 0.5, 0.0);
+  godraysPass.uniforms['sunColor'].value.setHex(0xffaa00);
+  godraysPass.uniforms['skyColor'].value.setHex(0x000000);
+  godraysPass.uniforms['intensity'].value = CONFIG.godraysIntensity;
+
+  composer = new THREE.EffectComposer(renderer);
+  composer.addPass(renderScene);
   composer.addPass(bloomPass);
-  
-  // God rays pass
-  godRaysPass = new ShaderPass(GodRaysShader);
-  godRaysPass.uniforms.tDiffuse.value = composer.renderTarget2.texture;
-  godRaysPass.uniforms.fogColor.value = new THREE.Color(0x000000);
-  godRaysPass.uniforms.fogDensity.value = 0.00025;
-  composer.addPass(godRaysPass);
-  
-  // Add lights
-  const ambientLight = new THREE.AmbientLight(0x404040);
-  scene.add(ambientLight);
-  
-  const pointLight1 = new THREE.PointLight(0x00ffff, 2, 100);
-  pointLight1.position.set(10, 10, 10);
-  scene.add(pointLight1);
-  
-  const pointLight2 = new THREE.PointLight(0xff00ff, 1, 100);
-  pointLight2.position.set(-10, -10, -10);
-  scene.add(pointLight2);
-  
-  // Create 3D text
-  create3DText();
-  
-  // Create particles
+  composer.addPass(godraysPass);
+
+  // Create particles (energy field)
   createParticles();
-  
-  // Animation loop
-  animate();
-  
-  // Handle window resize
+
+  // Create floating "vibe words"
+  createFloatingTexts();
+
+  // Event listeners
   window.addEventListener('resize', onWindowResize);
+  animate();
+
+  // Hide loading
+  gsap.to(loadingIndicator, { opacity: 0, duration: 1, onComplete: () => {
+    loadingIndicator.style.display = 'none';
+  }});
 }
 
-// Create 3D text with Troika
-function create3DText() {
-  const text = new TroikaText();
-  text.text = 'EPIC TECH AI';
-  text.fontSize = 2;
-  text.color = '#00ffff';
-  text.font = 'Orbitron';
-  text.anchorX = 'center';
-  text.anchorY = 'middle';
-  text.position.set(0, 0, 0);
-  text.sync();
-  scene.add(text);
-  
-  // Animate the text
-  gsap.to(text.position, {
-    y: 2,
-    duration: 2,
-    repeat: -1,
-    yoyo: true,
-    ease: 'power2.inOut'
-  });
-}
-
-// Create particle system
+// --- PARTICLES SYSTEM ---
 function createParticles() {
-  const particlesGeometry = new THREE.BufferGeometry();
-  const particlesCount = 1000;
-  const posArray = new Float32Array(particlesCount * 3);
-  
-  for(let i = 0; i < particlesCount * 3; i++) {
-    posArray[i] = (Math.random() - 0.5) * 50;
+  const geometry = new THREE.BufferGeometry();
+  const positions = [];
+  const colors = [];
+  const sizes = [];
+  const speeds = [];
+
+  for (let i = 0; i < CONFIG.particleCount; i++) {
+    const x = (Math.random() - 0.5) * 100;
+    const y = (Math.random() - 0.5) * 60;
+    const z = (Math.random() - 0.5) * 80;
+    const color = new THREE.Color(CONFIG.colors[Math.floor(Math.random() * CONFIG.colors.length)]);
+    const size = Math.random() * 2 + 0.5;
+    const speed = Math.random() * 0.02 + 0.005;
+
+    positions.push(x, y, z);
+    colors.push(color.r, color.g, color.b);
+    sizes.push(size);
+    speeds.push(speed);
   }
-  
-  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-  
-  const particlesMaterial = new THREE.PointsMaterial({
-    size: 0.005,
-    color: '#00ffff'
+
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+  geometry.setAttribute('speed', new THREE.Float32BufferAttribute(speeds, 1));
+
+  const material = new THREE.PointsMaterial({
+    size: 1,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.8,
+    blending: THREE.AdditiveBlending,
   });
-  
-  const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-  scene.add(particlesMesh);
-  
-  // Animate particles
-  gsap.to(particlesMesh.rotation, {
-    y: Math.PI * 2,
-    duration: 60,
-    repeat: -1,
-    ease: 'none'
+
+  particleSystem = new THREE.Points(geometry, material);
+  scene.add(particleSystem);
+}
+
+// --- FLOATING TEXTS (Troika) ---
+function createFloatingTexts() {
+  const texts = ['1111', '333', 'light up', 'vibe check', 'glitch art', 'code + cannabis'];
+  texts.forEach((text, i) => {
+    const textMesh = new troika.Text();
+    textMesh.text = text;
+    textMesh.font = 'https://fonts.gstatic.com/s/roboto/v18/KFOmCnqEu92Fr1Mu4mxK.woff2';
+    textMesh.fontSize = 1.5;
+    textMesh.color = new THREE.Color(CONFIG.colors[i % CONFIG.colors.length]);
+    textMesh.position.set(
+      (Math.random() - 0.5) * 60,
+      (Math.random() - 0.5) * 40,
+      -10 - Math.random() * 20
+    );
+    scene.add(textMesh);
+    floatingTexts.push(textMesh);
   });
 }
 
-// Animation loop
+// --- ANIMATION LOOP ---
 function animate() {
   requestAnimationFrame(animate);
-  
-  // Rotate scene slightly
-  if (scene) {
-    scene.rotation.y += 0.001;
+
+  const delta = clock.getDelta();
+  const time = clock.getElapsedTime();
+
+  // Animate particles
+  if (particleSystem) {
+    const positions = particleSystem.geometry.attributes.position.array;
+    const speeds = particleSystem.geometry.attributes.speed.array;
+
+    for (let i = 0; i < CONFIG.particleCount; i++) {
+      positions[i * 3 + 1] += speeds[i];
+      positions[i * 3] += Math.sin(time * 0.5 + i) * 0.01;
+
+      // Wrap around
+      if (positions[i * 3 + 1] > 40) {
+        positions[i * 3 + 1] = -40;
+      }
+    }
+    particleSystem.geometry.attributes.position.needsUpdate = true;
+    particleSystem.rotation.y = time * 0.02;
   }
-  
+
+  // Animate floating texts
+  floatingTexts.forEach((text, i) => {
+    text.position.x += Math.sin(time * 0.3 + i) * 0.02;
+    text.position.y += Math.cos(time * 0.2 + i) * 0.01;
+    text.rotation.z = Math.sin(time * 0.1 + i) * 0.1;
+  });
+
+  // Render with postprocessing
   composer.render();
 }
 
-// Handle window resize
+// --- UI LOGIC ---
+function addMessage(text, sender = 'user') {
+  const msgDiv = document.createElement('div');
+  msgDiv.className = `message ${sender}`;
+  msgDiv.innerHTML = `
+    <span class="sender">${sender === 'user' ? 'You' : 'Epic Tech AI'}</span>
+    <p>${escapeHtml(text)}</p>
+  `;
+  messagesContainer.appendChild(msgDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+  // Play sound
+  if (sender === 'user') {
+    soundEffects.send.play();
+  } else {
+    soundEffects.receive.play();
+  }
+
+  // Trigger particle burst
+  if (sender === 'user') {
+    createParticleBurst();
+  }
+}
+
+function createParticleBurst() {
+  // Add a burst of particles at center
+  const burstCount = 50;
+  const positions = particleSystem.geometry.attributes.position.array;
+  const colors = particleSystem.geometry.attributes.color.array;
+  const sizes = particleSystem.geometry.attributes.size.array;
+
+  for (let i = 0; i < burstCount; i++) {
+    const idx = Math.floor(Math.random() * CONFIG.particleCount);
+    positions[idx * 3] = 0;
+    positions[idx * 3 + 1] = 0;
+    positions[idx * 3 + 2] = 0;
+    colors[idx * 3] = 1;
+    colors[idx * 3 + 1] = 0.8;
+    colors[idx * 3 + 2] = 0;
+    sizes[idx] = 3;
+  }
+  particleSystem.geometry.attributes.position.needsUpdate = true;
+  particleSystem.geometry.attributes.color.needsUpdate = true;
+  particleSystem.geometry.attributes.size.needsUpdate = true;
+}
+
+// Simulated AI response
+function simulateAIResponse(userMessage) {
+  const lower = userMessage.toLowerCase();
+  let response = '';
+
+  if (lower.includes('1111')) {
+    response = "🔥 11:11 — The Universe is listening. What do you need to manifest? ✨";
+  } else if (lower.includes('333')) {
+    response = "🙏 333 — Gratitude is your superpower. Name one thing you're thankful for today.";
+  } else if (lower.includes('light up') || lower.includes('smoke')) {
+    response = "🌿 Light it up. Let the smoke rings carry your worries away. Breathe in clarity, exhale chaos.";
+  } else if (lower.includes('code')) {
+    response = "💻 Code is your spellbook. What magic are you casting today? 🪄";
+  } else if (lower.includes('art')) {
+    response = "🎨 Art is the glitch in the matrix. Show me your canvas — or generate one!";
+  } else if (lower.includes('roast')) {
+    response = "🔥 *leans in* Your code is messy, your fonts are clashing, and your color palette screams 'I gave up'... but I love it. Let's fix that.";
+  } else if (lower.includes('affirmation')) {
+    response = "✨ You are a creative force. Your ideas are valid. Your vibe is magnetic. Now go build something beautiful.";
+  } else {
+    response = "🌌 Your vibe is *chef's kiss* — but let's go deeper. Ask for a prompt, a roast, or just vibe check.";
+  }
+
+  // Delay for realism
+  setTimeout(() => {
+    addMessage(response, 'ai');
+  }, 1200 + Math.random() * 1000);
+}
+
+// --- EVENT HANDLERS ---
+function handleSend() {
+  const text = messageInput.value.trim();
+  if (!text) return;
+
+  addMessage(text, 'user');
+  messageInput.value = '';
+
+  // Simulate AI response
+  simulateAIResponse(text);
+}
+
+// Glitch effect on send
+function triggerGlitch() {
+  const originalStrength = bloomPass.strength;
+  const originalRadius = bloomPass.radius;
+
+  gsap.to(bloomPass, {
+    strength: 2.5,
+    radius: 0.8,
+    duration: 0.1,
+    yoyo: true,
+    repeat: 3,
+    onComplete: () => {
+      gsap.to(bloomPass, {
+        strength: CONFIG.bloomStrength,
+        radius: CONFIG.bloomRadius,
+        duration: 0.5,
+      });
+    }
+  });
+
+  soundEffects.glitch.play();
+}
+
+// --- UTILS ---
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -162,125 +308,34 @@ function onWindowResize() {
   composer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// Initialize chat functionality
-function initChat() {
-  const messageInput = document.getElementById('message-input');
-  const sendBtn = document.getElementById('send-btn');
-  
-  sendBtn.addEventListener('click', sendMessage);
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+  initThree();
+
+  // Socket.io (stub for future backend)
+  // const socket = io();
+  // socket.on('connect', () => console.log('Connected to cosmos... 🌌'));
+  // socket.on('message', (msg) => addMessage(msg, 'ai'));
+
+  // Event Listeners
+  sendBtn.addEventListener('click', () => {
+    handleSend();
+    triggerGlitch();
+  });
+
   messageInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
-      sendMessage();
+      handleSend();
+      triggerGlitch();
     }
   });
-}
-
-// Send message function
-function sendMessage() {
-  const messageInput = document.getElementById('message-input');
-  const message = messageInput.value.trim();
-  
-  if (message) {
-    addMessage(message, 'user');
-    messageInput.value = '';
-    
-    // Simulate AI response
-    simulateAIResponse(message);
-  }
-}
-
-// Add message to chat
-function addMessage(text, type) {
-  const messagesContainer = document.getElementById('messages-container');
-  const messageElement = document.createElement('div');
-  messageElement.className = `message message-${type}`;
-  
-  if (type === 'user') {
-    messageElement.innerHTML = `<strong>YOU:</strong> ${text}`;
-  } else {
-    messageElement.innerHTML = `<strong>AI:</strong> ${text}`;
-  }
-  
-  messagesContainer.appendChild(messageElement);
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
-// Simulate AI response
-function simulateAIResponse(userMessage) {
-  // Show typing indicator
-  const typingIndicator = document.createElement('div');
-  typingIndicator.className = 'message message-ai typing';
-  typingIndicator.innerHTML = '<strong>AI:</strong> <span class="typing-dots">...</span>';
-  document.getElementById('messages-container').appendChild(typingIndicator);
-  
-  // Simulate processing delay
-  setTimeout(() => {
-    // Remove typing indicator
-    typingIndicator.remove();
-    
-    // Generate response based on user input
-    let response;
-    if (userMessage.toLowerCase().includes('1111')) {
-      response = 'Awakening vibes activated! 🌅 The universe is expanding and your consciousness is rising. Feel the energy flowing through you like electric currents. 🌿✨';
-    } else if (userMessage.toLowerCase().includes('333')) {
-      response = 'Gratitude mode engaged! 🙏 Every breath is a gift, every moment is precious. Thank the universe for this beautiful chaos we call life. 🌟';
-    } else if (userMessage.toLowerCase().includes('light up')) {
-      response = 'Smoke rings activated! 🌫️ Watch as the digital smoke dances around you, creating patterns of light and shadow. The atmosphere is thick with creative energy. ✨';
-    } else if (userMessage.toLowerCase().includes('code')) {
-      response = 'Code mode activated! 🖥️ Let\'s dive into the digital realm. What kind of code are we creating today? A website, a game, or perhaps something more... mysterious? 🌿';
-    } else if (userMessage.toLowerCase().includes('art')) {
-      response = 'Art mode engaged! 🎨 The canvas is your playground. Let\'s create something that makes the soul sing and the eyes dance. What artistic vision do you have in mind? 🌟';
-    } else if (userMessage.toLowerCase().includes('music')) {
-      response = 'Music mode activated! 🎵 Let the rhythm take control. What kind of soundscape are we crafting? Electronic beats, acoustic melodies, or perhaps something that defies categorization? 🌿';
-    } else {
-      response = `Interesting query! 🔥 As your multimedia artist and code slinger, I appreciate the creative energy. Tell me more about what you\'re envisioning. The cosmos is ready to manifest your desires. 🌟`;
-    }
-    
-    addMessage(response, 'ai');
-  }, 1500);
-}
-
-// Initialize Socket.IO
-function initSocketIO() {
-  // For demo purposes, we'll use a mock socket
-  // In production, you would connect to your actual Socket.IO server
-  console.log('Socket.IO initialized (mock mode)');
-  
-  // Simulate socket events
-  setTimeout(() => {
-    addMessage('Connection established to the cosmic network! 🌌', 'system');
-  }, 2000);
-}
-
-// Initialize audio system
-function initAudio() {
-  // Create Howler sound instance
-  const sound = new Howler({
-    src: ['https://example.com/notification-sound.mp3'],
-    volume: 0.5,
-    loop: false,
-    preload: true
-  });
-  
-  // Store sound reference
-  window.chatSound = sound;
-  
-  console.log('Audio system initialized');
-}
-
-// Hide loading indicator
-function hideLoadingIndicator() {
-  const loadingIndicator = document.getElementById('loading-indicator');
-  if (loadingIndicator) {
-    loadingIndicator.style.display = 'none';
-  }
-  isLoading = false;
-}
-
-// Error handling
-window.addEventListener('error', (event) => {
-  console.error('Global error:', event.error);
-  if (!isLoading) {
-    addMessage('Oops! Something went wrong. Please try again. 🔥', 'ai');
-  }
 });
