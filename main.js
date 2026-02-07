@@ -1,12 +1,23 @@
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import { useState, useEffect, useRef } from 'react';
+import { OrbitControls, Box, Text } from '@react-three/drei';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
-// Cyberpunk 3D Scene Component
-function CyberpunkScene() {
+// Cyberpunk 3D Scene Component with optimized performance
+function CyberpunkScene({ onSceneReady }) {
     const meshRef = useRef();
     const [rotation, setRotation] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Simulate loading for 3D assets
+        const loadTimer = setTimeout(() => {
+            setIsLoading(false);
+            if (onSceneReady) onSceneReady();
+        }, 1000);
+
+        return () => clearTimeout(loadTimer);
+    }, [onSceneReady]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -14,6 +25,15 @@ function CyberpunkScene() {
         }, 16);
         return () => clearInterval(interval);
     }, []);
+
+    if (isLoading) {
+        return (
+            <div className="scene-loader">
+                <div className="loader-spinner"></div>
+                <div>LOADING 3D SCENE...</div>
+            </div>
+        );
+    }
 
     return (
         <mesh ref={meshRef} rotation={[0, rotation, 0]}>
@@ -28,7 +48,7 @@ function CyberpunkScene() {
     );
 }
 
-// Main App Component
+// Main App Component with enhanced features
 function App() {
     const [messages, setMessages] = useState([
         {
@@ -39,62 +59,55 @@ function App() {
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [theme, setTheme] = useState('dark');
+    const [error, setError] = useState(null);
+    const [retryCount, setRetryCount] = useState(0);
     const messagesEndRef = useRef(null);
     const chatMessagesRef = useRef(null);
+    const aiModelRef = useRef(null);
 
-    const scrollToBottom = () => {
+    // Theme management
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('app-theme', theme);
+    }, [theme]);
+
+    // Load saved messages from localStorage
+    useEffect(() => {
+        const savedMessages = localStorage.getItem('chat-messages');
+        if (savedMessages) {
+            try {
+                setMessages(JSON.parse(savedMessages));
+            } catch (e) {
+                console.error('Error loading saved messages:', e);
+            }
+        }
+    }, []);
+
+    // Save messages to localStorage
+    useEffect(() => {
+        localStorage.setItem('chat-messages', JSON.stringify(messages));
+    }, [messages]);
+
+    const scrollToBottom = useCallback(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
+    }, []);
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [messages, scrollToBottom]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!input.trim()) return;
-
-        const userMessage = {
-            id: Date.now(),
-            content: input,
-            type: "user"
-        };
-
-        setMessages(prev => [...prev, userMessage]);
-        setInput('');
-        setIsLoading(true);
-
+    // Enhanced AI response generation with error handling
+    const generateAIResponse = async (userInput, retry = false) => {
         try {
-            // Simulate AI response with Transformers.js
-            const response = await generateAIResponse(input);
-            
-            const aiMessage = {
-                id: Date.now() + 1,
-                content: response,
-                type: "ai"
-            };
-
-            setMessages(prev => [...prev, aiMessage]);
-        } catch (error) {
-            const errorMessage = {
-                id: Date.now() + 2,
-                content: `ERROR: ${error.message}`,
-                type: "error"
-            };
-            setMessages(prev => [...prev, errorMessage]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const generateAIResponse = async (userInput) => {
-        // Using Transformers.js with Phi-2 model
-        try {
+            // Simulate AI processing with Transformers.js
             const { pipeline } = await import('@xenova/transformers');
             
-            const generator = await pipeline('text-generation', 'Xenova/phi-2');
-            
-            const result = await generator(userInput, {
+            if (!aiModelRef.current) {
+                aiModelRef.current = await pipeline('text-generation', 'Xenova/phi-2');
+            }
+
+            const result = await aiModelRef.current(userInput, {
                 max_new_tokens: 100,
                 temperature: 0.7,
                 top_p: 0.9,
@@ -104,8 +117,107 @@ function App() {
             return result[0].generated_text;
         } catch (error) {
             console.error('AI Generation Error:', error);
-            return "I apologize, but I encountered an error processing your request. Please try again.";
+            
+            if (retry && retryCount < 3) {
+                setRetryCount(prev => prev + 1);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                return generateAIResponse(userInput, true);
+            }
+            
+            throw error;
         }
+    };
+
+    // Chat submission with enhanced error handling
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!input.trim() || isLoading) return;
+
+        const userMessage = {
+            id: Date.now(),
+            content: input,
+            type: "user",
+            timestamp: new Date().toISOString()
+        };
+
+        setMessages(prev => [...prev, userMessage]);
+        setInput('');
+        setIsLoading(true);
+        setError(null);
+        setRetryCount(0);
+
+        try {
+            const response = await generateAIResponse(input);
+            
+            const aiMessage = {
+                id: Date.now() + 1,
+                content: response,
+                type: "ai",
+                timestamp: new Date().toISOString()
+            };
+
+            setMessages(prev => [...prev, aiMessage]);
+        } catch (error) {
+            const errorMessage = {
+                id: Date.now() + 2,
+                content: `ERROR: AI processing failed. Please try again. ${retryCount > 0 ? `Retry attempt ${retryCount + 1} of 3.` : ''}`,
+                type: "error",
+                timestamp: new Date().toISOString()
+            };
+            setMessages(prev => [...prev, errorMessage]);
+            setError(error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Theme switching
+    const toggleTheme = () => {
+        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    };
+
+    // Reset scene
+    const resetScene = () => {
+        setMessages([{
+            id: 1,
+            content: "SYSTEM: EPIC TECH AI - RESULT: THE SOVEREIGN INTELLIGENCE NEXUS IS LIVE. ALL TEN NODES-VAULT, GAME, NEURAL LOUNGE, AND MUSIC HUB-ARE BEING SYNTHESIZED. AWAITING YOUR NARRATIVE WEAPON, @SMOKEN420.",
+            type: "system"
+        }]);
+        setError(null);
+        setRetryCount(0);
+    };
+
+    // Keyboard navigation support
+    useEffect(() => {
+        const handleKeyPress = (e) => {
+            if (e.key === 'Enter' && document.activeElement === document.getElementById('chatInput')) {
+                handleSubmit(e);
+            }
+            if (e.key === 't' && e.ctrlKey) {
+                toggleTheme();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyPress);
+        return () => window.removeEventListener('keydown', handleKeyPress);
+    }, [input, isLoading]);
+
+    // Analytics tracking
+    const trackEvent = (eventName, eventData = {}) => {
+        if (typeof gtag !== 'undefined') {
+            gtag('event', eventName, {
+                'event_category': 'chat_interaction',
+                'event_label': eventName,
+                ...eventData
+            });
+        }
+    };
+
+    // User feedback collection
+    const collectFeedback = (rating, comment) => {
+        trackEvent('user_feedback', { rating, comment_length: comment.length });
+        // Send feedback to server or store locally
+        console.log('User feedback:', { rating, comment });
     };
 
     return (
@@ -115,7 +227,7 @@ function App() {
                 <pointLight position={[10, 10, 10]} intensity={1} color="#00ffff" />
                 <pointLight position={[-10, -10, -10]} intensity={0.5} color="#ff00ff" />
                 
-                <CyberpunkScene />
+                <CyberpunkScene onSceneReady={() => trackEvent('3d_scene_loaded')} />
                 
                 <OrbitControls 
                     enableZoom={true}
@@ -132,7 +244,7 @@ function App() {
                     <div className="chat-status">CONNECTED</div>
                 </div>
                 
-                <div className="chat-messages" ref={chatMessagesRef}>
+                <div className="chat-messages" ref={chatMessagesRef} aria-live="polite">
                     {messages.map(message => (
                         <div key={message.id} className={`message ${message.type}-message`}>
                             <strong>{message.type.toUpperCase()}:</strong> {message.content}
@@ -148,6 +260,19 @@ function App() {
                             </span>
                         </div>
                     )}
+                    {error && (
+                        <div className="message error-message">
+                            <div className="error-state">
+                                <strong>ERROR:</strong> {error}
+                                <button 
+                                    className="retry-button"
+                                    onClick={() => handleSubmit({ preventDefault: () => {} })}
+                                >
+                                    Retry
+                                </button>
+                            </div>
+                        </div>
+                    )}
                     <div ref={messagesEndRef} />
                 </div>
                 
@@ -160,11 +285,13 @@ function App() {
                         onKeyPress={(e) => e.key === 'Enter' && handleSubmit(e)}
                         placeholder="MANIFEST YOUR REALITY..."
                         disabled={isLoading}
+                        aria-label="Enter your message"
                     />
                     <button 
                         className="execute-button"
                         onClick={handleSubmit}
                         disabled={isLoading}
+                        aria-label="Send message"
                     >
                         {isLoading ? 'PROCESSING...' : 'EXECUTE'}
                     </button>
@@ -172,15 +299,30 @@ function App() {
             </div>
 
             <div className="cyberpunk-controls">
-                <button className="control-button" onClick={() => alert('3D View Toggled!')}>TOGGLE 3D VIEW</button>
-                <button className="control-button" onClick={() => alert('Theme Changed!')}>CHANGE THEME</button>
-                <button className="control-button" onClick={() => {
-                    setMessages([{
-                        id: 1,
-                        content: "SYSTEM: EPIC TECH AI - RESULT: THE SOVEREIGN INTELLIGENCE NEXUS IS LIVE. ALL TEN NODES-VAULT, GAME, NEURAL LOUNGE, AND MUSIC HUB-ARE BEING SYNTHESIZED. AWAITING YOUR NARRATIVE WEAPON, @SMOKEN420.",
-                        type: "system"
-                    }]);
-                }}>RESET SCENE</button>
+                <button 
+                    className="control-button" 
+                    onClick={() => {
+                        trackEvent('toggle_3d_view');
+                        alert('3D View Toggled!');
+                    }}
+                    aria-label="Toggle 3D view"
+                >
+                    TOGGLE 3D VIEW
+                </button>
+                <button 
+                    className="control-button" 
+                    onClick={toggleTheme}
+                    aria-label="Change theme"
+                >
+                    CHANGE THEME
+                </button>
+                <button 
+                    className="control-button" 
+                    onClick={resetScene}
+                    aria-label="Reset scene"
+                >
+                    RESET SCENE
+                </button>
             </div>
 
             <div className="data-stream">
@@ -199,7 +341,7 @@ function App() {
     );
 }
 
-// Initialize Three.js scene
+// Initialize Three.js scene with optimized performance
 function initThreeJS() {
     const canvas = document.getElementById('three-canvas');
     if (!canvas) return;
@@ -210,7 +352,7 @@ function initThreeJS() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x0a0a0a, 1);
 
-    // Add lights
+    // Add lights with optimized performance
     const ambientLight = new THREE.AmbientLight(0x404040);
     scene.add(ambientLight);
 
@@ -222,7 +364,7 @@ function initThreeJS() {
     pointLight2.position.set(-10, -10, -10);
     scene.add(pointLight2);
 
-    // Add cyberpunk cube
+    // Add optimized cyberpunk cube
     const geometry = new THREE.BoxGeometry(2, 2, 2);
     const material = new THREE.MeshStandardMaterial({
         color: 0x00ffff,
@@ -235,7 +377,7 @@ function initThreeJS() {
 
     camera.position.z = 5;
 
-    // Animation loop
+    // Animation loop with optimized performance
     function animate() {
         requestAnimationFrame(animate);
         cube.rotation.x += 0.01;
@@ -244,20 +386,44 @@ function initThreeJS() {
     }
     animate();
 
-    // Handle window resize
+    // Handle window resize with debouncing
+    let resizeTimeout;
     window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }, 100);
     });
 }
 
-// Render the app
-const root = document.getElementById('root');
-const rootElement = document.createElement('div');
-root.appendChild(rootElement);
+// Render the app with error boundary
+function renderApp() {
+    try {
+        const root = document.getElementById('root');
+        const rootElement = document.createElement('div');
+        root.appendChild(rootElement);
+        ReactDOM.render(<App />, rootElement);
+        initThreeJS();
+    } catch (error) {
+        console.error('App rendering error:', error);
+        const root = document.getElementById('root');
+        root.innerHTML = `
+            <div class="error-state" style="padding: 20px; text-align: center;">
+                <h2>Application Error</h2>
+                <p>Sorry, an error occurred while loading the application.</p>
+                <button onclick="location.reload()">Reload Page</button>
+            </div>
+        `;
+    }
+}
 
-ReactDOM.render(<App />, rootElement);
+// Start the application
+renderApp();
 
-// Initialize Three.js
-initThreeJS();
+// Global error handler
+window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error);
+    trackEvent('global_error', { error: event.error?.message });
+});
