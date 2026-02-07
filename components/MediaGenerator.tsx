@@ -1,204 +1,85 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import Scene from '@/components/Scene';
-import { chatStream } from '@/lib/groq';
+import { useState, useCallback } from 'react';
+import { Image as LucideImage, Loader2, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Send, Loader2, Image, Video } from 'lucide-react';
 
-type Message = {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  isStreaming?: boolean;
-  media?: string; // Image/video URL from tool call
-};
+interface MediaGeneratorProps {
+  prompt: string;
+  onMediaGenerated: (url: string) => void;
+  style?: 'neon' | 'glitch' | 'cyberpunk' | 'smoke' | 'fire';
+}
 
-export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentStream, setCurrentStream] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+const MediaGenerator = ({ prompt, onMediaGenerated, style = 'cyberpunk' }: MediaGeneratorProps) => {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedUrl, setGeneratedUrl] = useState('');
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const generateMedia = useCallback(async () => {
+    if (!prompt || isGenerating) return;
 
-  useEffect(scrollToBottom, [messages]);
-
-  const handleSend = useCallback(async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: input,
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
-    setCurrentStream('');
-
+    setIsGenerating(true);
     try {
-      const allMessages = [
-        ...messages,
-        userMessage,
-        { role: 'assistant' as const, content: '' },
-      ];
+      // 🔥 Real Fal.ai Flux integration (add FAL_KEY to Vercel env)
+      const response = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          prompt: `${prompt}, cyberpunk neon glitch smoke ${style} vibes, highly detailed, 8k, cinematic lighting, Sm0ken42O style`,
+          style 
+        }),
+      });
 
-      await chatStream(
-        allMessages.map((m) => ({
-          role: m.role,
-          content: m.content,
-        })),
-        (chunk: string) => {
-          setCurrentStream((prev) => prev + chunk);
-        }
-      );
-
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.role === 'assistant' && !msg.id
-            ? { ...msg, content: currentStream, id: Date.now().toString() }
-            : msg
-        )
-      );
+      const { imageUrl } = await response.json();
+      setGeneratedUrl(imageUrl);
+      onMediaGenerated(imageUrl);
     } catch (error) {
-      console.error('Chat error:', error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          role: 'assistant',
-          content: 'Error: Could not connect to AI. Check your GROQ_API_KEY.',
-        },
-      ]);
+      console.error('Media gen error:', error);
+      onMediaGenerated('Error generating media. Check FAL_KEY.');
     } finally {
-      setIsLoading(false);
-      setCurrentStream('');
+      setIsGenerating(false);
     }
-  }, [input, messages, currentStream, isLoading]);
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
+  }, [prompt, isGenerating, style, onMediaGenerated]);
 
   return (
-    <main className="min-h-screen w-full relative overflow-hidden">
-      <Scene />
+    <div className="flex flex-col items-center space-y-3 p-6 bg-black/50 backdrop-blur-xl rounded-2xl border border-purple-500/30 neon-glow max-w-sm mx-auto">
+      <button
+        onClick={generateMedia}
+        disabled={isGenerating}
+        className={cn(
+          'cyber-button flex items-center space-x-2 p-4 w-full rounded-xl',
+          isGenerating && 'opacity-50 cursor-not-allowed'
+        )}
+      >
+        {isGenerating ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Generating 🔥</span>
+          </>
+        ) : (
+          <>
+            <LucideImage className="w-5 h-5" />
+            <span>Generate {style.toUpperCase()} Art</span>
+          </>
+        )}
+      </button>
       
-      {/* Chat Container */}
-      <div className="relative z-50 flex flex-col h-screen max-w-4xl mx-auto p-6 pt-20 pb-20">
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto space-y-4 pr-4 mb-4 custom-scrollbar">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={cn(
-                'flex animate-in slide-in-from-bottom-2 duration-200',
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              )}
-            >
-              <div
-                className={cn(
-                  'chat-bubble max-w-[80%] p-5 relative group',
-                  message.role === 'user'
-                    ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 border-pink-500/40 text-right'
-                    : 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border-cyan-500/40'
-                )}
-              >
-                {message.role === 'assistant' && message.media && (
-                  <div className="mb-3">
-                    {message.media.endsWith('.mp4') ? (
-                      <video
-                        src={message.media}
-                        controls
-                        className="w-full rounded-xl shadow-neon-glow"
-                        autoPlay
-                      />
-                    ) : (
-                      <img
-                        src={message.media}
-                        alt="Generated media"
-                        className="w-full rounded-xl shadow-neon-glow cursor-pointer hover:scale-105 transition-all"
-                      />
-                    )}
-                  </div>
-                )}
-                <p className="font-rajdhani text-lg leading-relaxed whitespace-pre-wrap">
-                  {message.content}
-                </p>
-                {message.isStreaming && (
-                  <div className="flex items-center mt-2 space-x-1">
-                    <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
-                    <span className="text-xs opacity-75 font-mono">streaming...</span>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
-              </div>
-            </div>
-          ))}
-          {currentStream && (
-            <div className="flex justify-start animate-in slide-in-from-bottom-2 duration-200">
-              <div className="chat-bubble bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border-cyan-500/40 p-5 max-w-[80%]">
-                <p className="font-rajdhani text-lg leading-relaxed whitespace-pre-wrap glitch">
-                  {currentStream}
-                </p>
-                <div className="flex items-center mt-2 space-x-1">
-                  <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
-                  <span className="text-xs opacity-75 font-mono">generating...</span>
-                </div>
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input */}
-        <div className="flex items-end space-x-3 p-4 bg-black/20 backdrop-blur-xl rounded-3xl border border-white/10 neon-glow">
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type your message... or ask for neon art, glitch videos 🔥"
-            className="flex-1 bg-transparent border-none outline-none text-lg font-rajdhani text-white placeholder:text-white/60 resize-none max-h-24"
-            disabled={isLoading}
+      {generatedUrl && (
+        <div className="relative group">
+          <img
+            src={generatedUrl}
+            alt="Generated media"
+            className="w-full h-64 object-cover rounded-xl shadow-2xl neon-glow hover:scale-105 transition-all cursor-pointer"
           />
           <button
-            onClick={handleSend}
-            disabled={!input.trim() || isLoading}
-            className={cn(
-              'cyber-button flex items-center space-x-2 p-4 rounded-2xl shadow-neon-glow hover:animate-pulse',
-              (!input.trim() || isLoading) && 'opacity-50 cursor-not-allowed'
-            )}
+            onClick={() => window.open(generatedUrl, '_blank')}
+            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-black/70 p-2 rounded-full neon-glow transition-all"
           >
-            {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <Send className="w-5 h-5" />
-            )}
+            <Download className="w-4 h-4" />
           </button>
         </div>
-
-        {/* Quick actions */}
-        <div className="flex space-x-2 pt-4 opacity-80">
-          <button className="cyber-button flex-1 flex items-center justify-center space-x-2 p-3 text-xs">
-            <Image className="w-4 h-4" />
-            <span>Neon Art</span>
-          </button>
-          <button className="cyber-button flex-1 flex items-center justify-center space-x-2 p-3 text-xs">
-            <Video className="w-4 h-4" />
-            <span>Glitch Vid</span>
-          </button>
-        </div>
-      </div>
-    </main>
+      )}
+    </div>
   );
-}
+};
+
+export default MediaGenerator;
