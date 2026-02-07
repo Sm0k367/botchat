@@ -2,79 +2,11 @@
   "version": 2,
   "builds": [
     {
-      "src": "package.json",
-      "use": "@vercel/static"
+      "src": "index.html",
+      "use": "@vercel/static-build",
+      "buildOptions": {
+        "assetDirs": ["images", "audio"]
+      }
     }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production",
-    "ANALYTICS_TRACKING_ID": "G-XXXXXXXXXX",
-    "ENABLE_ANALYTICS": "true"
-  },
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://cdn.socket.io; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https://fonts.googleapis.com; connect-src 'self' https://cdn.socket.io"
-        },
-        {
-          "key": "Strict-Transport-Security",
-          "value": "max-age=31536000; includeSubDomains; preload"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=()"
-        }
-      ]
-    }
-  ],
-  "trailingSlash": true,
-  "cleanUrls": true,
-  "images": {
-    "sizes": [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    "formats": ["image/avif", "image/webp"],
-    "minimumCacheTTL": 31536000,
-    "dangerouslyAllowSVG": true,
-    "contentDispositionType": "inline",
-    "loader": "default"
-  },
-  "git": {
-    "deploymentMessage": "Deploying Epic Tech AI Chat with 3D graphics and AI functionality"
-  },
-  "buildCommand": "npm install",
-  "outputDirectory": ".",
-  "installCommand": "npm install",
-  "devCommand": "npm run dev",
-  "framework": "static",
-  "regions": ["iad1"],
-  "usage": {
-    "builds": true,
-    "functions": false,
-    "edgeFunctions": false,
-    "crons": false
-  },
-  "logging": {
-    "level": "info",
-    "prefix": "[EpicTechAIChat]"
-  }
+  ]
 }
