@@ -3,8 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chatbot</title>
+  <title>BotChat</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/EffectComposer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/ShaderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/shaders/CopyShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/shaders/GodRaysShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/howler.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/socket.io@4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/troika-three-text@0.49.0/dist/troika-three-text.umd.js"></script>
+  <script src="script.js"></script>
 </head>
 <body>
   <!-- 3D Canvas Container -->
@@ -15,8 +27,8 @@
     <!-- Header -->
     <div class="chat-header">
       <div class="header-content">
-        <h1 class="title">Chatbot</h1>
-        <p class="subtitle">Multimedia Artist | Code Slinger | Vibe Curator</p>
+        <h1 class="title">BotChat</h1>
+        <p class="subtitle">A chatbot built with Three.js, Socket.io, and Howler.js</p>
       </div>
       <div class="status-indicator">
         <span class="status-dot"></span>
@@ -56,18 +68,6 @@
     <p>Connecting to the server...</p>
   </div>
 
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/EffectComposer.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/RenderPass.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/ShaderPass.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/shaders/CopyShader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/shaders/GodRaysShader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/howler.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/socket.io@4.7.2/socket.io.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/troika-three-text@0.49.0/dist/troika-three-text.umd.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
