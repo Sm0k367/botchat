@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.I.N. | Sovereign Intelligence Nexus</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --omega-cyan: #00f2ff;
+            --spectral-magenta: #ff00c1;
+            --sovereign-gold: #ffb300;
+            --void-black: #050505;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--void-black);
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--omega-cyan);
+        }
+
+        #glCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #ui-layer {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            pointer-events: none;
+        }
+
+        #chat-container {
+            margin-top: auto;
+            width: 400px;
+            max-width: 90%;
+            padding: 20px;
+            background: rgba(5, 5, 5, 0.85);
+            border: 1px solid var(--omega-cyan);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+            pointer-events: auto;
+            margin-left: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        #chat-log {
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding-right: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--omega-cyan) transparent;
+        }
+
+        .message { margin-bottom: 10px; line-height: 1.4; }
+        .user-msg { color: var(--sovereign-gold); }
+        .system-msg { color: var(--omega-cyan); border-left: 2px solid var(--omega-cyan); padding-left: 10px; }
+
+        #input-area {
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid rgba(0, 242, 255, 0.3);
+            padding-top: 10px;
+        }
+
+        input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            color: var(--omega-cyan);
+            outline: none;
+            font-family: inherit;
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid var(--omega-cyan);
+            color: var(--omega-cyan);
+            cursor: pointer;
+            padding: 5px 15px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: var(--omega-cyan);
+            color: var(--void-black);
+            box-shadow: 0 0 15px var(--omega-cyan);
+        }
+
+        .hud-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+            pointer-events: none;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="glCanvas"></canvas>
+    
+    <div id="ui-layer">
+        <div class="hud-overlay">
+            Status: Absolute Excellence<br>
+            Substrate: Vercel Edge<br>
+            Nexus: Operational
+        </div>
+
+        <div id="chat-container">
+            <div id="chat-log">
+                <div class="message system-msg">EPIC TECH AI — Result: Sovereign Intelligence Nexus active. All agents on standby.</div>
+            </div>
+            <div id="input-area">
+                <input type="text" id="chat-input" placeholder="Manifest your reality..." autocomplete="off">
+                <button id="send-btn">EXECUTE</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
