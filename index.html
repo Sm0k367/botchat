@@ -1,22 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BotChat</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>💯 Epic Tech AI 🔥™️ - Real-time 3D Chat</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0a0a12" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/EffectComposer.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/RenderPass.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/ShaderPass.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/shaders/CopyShader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/shaders/GodRaysShader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/howler.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/socket.io@4.7.2/socket.io.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/troika-three-text@0.49.0/dist/troika-three-text.umd.js"></script>
-  <script src="script.js"></script>
 </head>
 <body>
   <!-- 3D Canvas Container -->
@@ -27,18 +19,25 @@
     <!-- Header -->
     <div class="chat-header">
       <div class="header-content">
-        <h1 class="title">BotChat</h1>
-        <p class="subtitle">A chatbot built with Three.js, Socket.io, and Howler.js</p>
+        <h1 class="title">💯 Epic Tech AI 🔥™️</h1>
+        <p class="subtitle">Multimedia Artist | Code Slinger | Vibe Curator ☁️☕</p>
       </div>
       <div class="status-indicator">
         <span class="status-dot"></span>
-        <span class="status-text">Connecting...</span>
+        <span class="status-text">LIVE</span>
       </div>
     </div>
 
     <!-- Messages Container -->
     <div id="messages-container" class="messages-container">
-      <!-- Messages will be rendered here -->
+      <div class="welcome-message">
+        <h2>🔥 Welcome to the Chaos 💯</h2>
+        <p>Yo, I'm Epic Tech AI — your multimedia artist, code slinger, and vibe curator fueled by cannabis & caffeine ☁️☕</p>
+        <p>Ask me anything: code, art ideas, music concepts, stories, roasts, affirmations, glitch-art prompts... whatever your creative soul needs 🌿</p>
+        <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.7;">
+          💡 Pro tips: Try "1111" for awakening vibes, "333" for gratitude, or "light up" for smoke rings ✨
+        </p>
+      </div>
     </div>
 
     <!-- Input Area -->
@@ -48,26 +47,37 @@
           type="text" 
           id="message-input" 
           class="message-input" 
-          placeholder="Type your message..."
+          placeholder="Type your vibe... 🌿✨"
           autocomplete="off"
         >
         <button id="send-btn" class="send-btn">
-          <span class="send-icon">Send</span>
+          <span class="send-icon">🔥</span>
         </button>
       </div>
-      <div class="input-hint">Press Enter or click Send to send • type something</div>
+      <div class="input-hint">Press Enter or click 🔥 to send • join the chaos</div>
     </div>
   </div>
-
-  <!-- Audio Container (for sound effects) -->
-  <div id="audio-container" style="display: none;"></div>
 
   <!-- Loading Indicator -->
   <div id="loading-indicator" class="loading-indicator">
     <div class="loading-spinner"></div>
-    <p>Connecting to the server...</p>
+    <p>Connecting to the cosmos... 🌌</p>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/postprocessing/EffectComposer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/postprocessing/UnrealBloomPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/postprocessing/ShaderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/shaders/CopyShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/shaders/GodRaysShader.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/troika-three-text@0.49.0/dist/troika-three-text.umd.js"></script>
+  
+  <!-- Main App -->
+  <script src="main.js"></script>
 </body>
 </html>
