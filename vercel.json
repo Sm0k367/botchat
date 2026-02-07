@@ -16,13 +16,10 @@
     "NODE_ENV": "production",
     "ANALYTICS_TRACKING_ID": "G-XXXXXXXXXX",
     "ENABLE_ANALYTICS": "true",
-    "THEME_PREFERENCE": "dark",
-    "MAX_RETRY_ATTEMPTS": "3",
-    "AI_MODEL": "Xenova/phi-2",
-    "MAX_TOKENS": "100",
-    "TEMPERATURE": "0.7",
-    "TOP_P": "0.9",
-    "REPETITION_PENALTY": "1.2"
+    "THREEJS_VERSION": "r128",
+    "GSAP_VERSION": "3.12.2",
+    "HOWLER_VERSION": "2.2.4",
+    "SOCKETIO_VERSION": "4.7.2"
   },
   "headers": [
     {
@@ -42,7 +39,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https://fonts.googleapis.com; connect-src 'self' https://www.google-analytics.com"
+          "value": "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://cdn.socket.io; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https://fonts.googleapis.com; connect-src 'self' https://cdn.socket.io"
         },
         {
           "key": "Strict-Transport-Security",
@@ -55,12 +52,6 @@
       ]
     }
   ],
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/.vercel/functions/api/$1"
-    }
-  ],
   "trailingSlash": true,
   "cleanUrls": true,
   "images": {
@@ -71,13 +62,8 @@
     "contentDispositionType": "inline",
     "loader": "default"
   },
-  "alias": {
-    "react": "react/umd/react.development.js",
-    "react-dom": "react-dom/umd/react-dom.development.js",
-    "react-scripts": "react-scripts"
-  },
   "git": {
-    "deploymentMessage": "Deploying enhanced Cyberpunk AI Chat with performance optimizations and new features"
+    "deploymentMessage": "Deploying Epic Tech AI Chat with 3D graphics and AI functionality"
   },
   "buildCommand": "npm run build",
   "outputDirectory": ".",
@@ -94,7 +80,7 @@
   },
   "logging": {
     "level": "info",
-    "prefix": "[CyberpunkAIChat]"
+    "prefix": "[EpicTechAIChat]"
   },
   "analytics": {
     "enabled": true,
