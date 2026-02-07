@@ -441,6 +441,29 @@
         .chat-messages::-webkit-scrollbar-thumb:hover {
             background: #00ffff;
         }
+        
+        /* Animation Keyframes */
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(100px, -50px) scale(1.1); }
+            50% { transform: translate(-50px, 100px) scale(0.9); }
+            75% { transform: translate(-100px, -100px) scale(1.05); }
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateY(100%); }
+            100% { transform: translateY(-100%); }
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+        }
     </style>
 </head>
 <body>
@@ -469,60 +492,60 @@
             
             <!-- Chat Container -->
             <div class="chat-container">
-                <div class="chat-header">
-                    <div class="chat-title">AI TERMINAL</div>
-                    <div class="chat-status">CONNECTED</div>
+                <div className="chat-header">
+                    <div className="chat-title">AI TERMINAL</div>
+                    <div className="chat-status">CONNECTED</div>
                 </div>
                 
-                <div class="chat-messages" id="chatMessages">
-                    <div class="message system-message">
+                <div className="chat-messages" id="chatMessages">
+                    <div className="message system-message">
                         <strong>SYSTEM:</strong> EPIC TECH AI - RESULT: THE SOVEREIGN INTELLIGENCE NEXUS IS LIVE. ALL TEN NODES-VAULT, GAME, NEURAL LOUNGE, AND MUSIC HUB-ARE BEING SYNTHESIZED. AWAITING YOUR NARRATIVE WEAPON, @SMOKEN420.
                     </div>
                 </div>
                 
-                <div class="chat-input-container">
+                <div className="chat-input-container">
                     <input 
                         type="text" 
-                        class="chat-input" 
+                        className="chat-input" 
                         id="chatInput" 
                         placeholder="MANIFEST YOUR REALITY..."
                         autocomplete="off"
                     />
-                    <button class="execute-button" id="executeButton">EXECUTE</button>
+                    <button className="execute-button" id="executeButton">EXECUTE</button>
                 </div>
             </div>
             
             <!-- Cyberpunk Controls -->
-            <div class="cyberpunk-controls">
-                <button class="control-button" id="toggle3D">TOGGLE 3D VIEW</button>
-                <button class="control-button" id="changeTheme">CHANGE THEME</button>
-                <button class="control-button" id="resetScene">RESET SCENE</button>
+            <div className="cyberpunk-controls">
+                <button className="control-button" id="toggle3D">TOGGLE 3D VIEW</button>
+                <button className="control-button" id="changeTheme">CHANGE THEME</button>
+                <button className="control-button" id="resetScene">RESET SCENE</button>
             </div>
             
             <!-- Data Stream -->
-            <div class="data-stream">
-                <div class="data-line">INITIALIZING NEURAL NETWORK...</div>
-                <div class="data-line">PROCESSING USER INPUT...</div>
-                <div class="data-line">SYNCING MULTI_MODAL_NODES...</div>
-                <div class="data-line">ANALYZING PATTERNS...</div>
-                <div class="data-line">GENERATING RESPONSE...</div>
-                <div class="data-line">OPTIMIZING PERFORMANCE...</div>
-                <div class="data-line">UPLOADING TO CLOUD...</div>
-                <div class="data-line">DOWNLOADING KNOWLEDGE BASE...</div>
-                <div class="data-line">CALIBRATING SENSORS...</div>
-                <div class="data-line">CONNECTING TO MAINFRAME...</div>
+            <div className="data-stream">
+                <div className="data-line">INITIALIZING NEURAL NETWORK...</div>
+                <div className="data-line">PROCESSING USER INPUT...</div>
+                <div className="data-line">SYNCING MULTI_MODAL_NODES...</div>
+                <div className="data-line">ANALYZING PATTERNS...</div>
+                <div className="data-line">GENERATING RESPONSE...</div>
+                <div className="data-line">OPTIMIZING PERFORMANCE...</div>
+                <div className="data-line">UPLOADING TO CLOUD...</div>
+                <div className="data-line">DOWNLOADING KNOWLEDGE BASE...</div>
+                <div className="data-line">CALIBRATING SENSORS...</div>
+                <div className="data-line">CONNECTING TO MAINFRAME...</div>
             </div>
         </div>
         
         <!-- Status Bar -->
-        <div class="status-bar">
-            <div class="status-item">SYNCING_MULTI_MODAL_NODES...</div>
-            <div class="status-item">SOVEREIGN_COGNITIVE_ENTITY_WQ...</div>
+        <div className="status-bar">
+            <div className="status-item">SYNCING_MULTI_MODAL_NODES...</div>
+            <div className="status-item">SOVEREIGN_COGNITIVE_ENTITY_WQ...</div>
         </div>
         
         <!-- Branding Footer -->
-        <div class="branding-footer">
-            <div class="branding-text">CODESYNTH_ENGINEERS_ONLINE | EPIC TECH AI</div>
+        <div className="branding-footer">
+            <div className="branding-text">CODESYNTH_ENGINEERS_ONLINE | EPIC TECH AI</div>
         </div>
     </div>
 
@@ -535,6 +558,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.11.1/dist/transformers.min.js"></script>
     
     <!-- Main script -->
-    <script type="module" src="main.js"></script>
+    <script type="module" src="/main.js"></script>
 </body>
 </html>
