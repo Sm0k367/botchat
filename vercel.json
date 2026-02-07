@@ -15,11 +15,7 @@
   "env": {
     "NODE_ENV": "production",
     "ANALYTICS_TRACKING_ID": "G-XXXXXXXXXX",
-    "ENABLE_ANALYTICS": "true",
-    "THREEJS_VERSION": "r128",
-    "GSAP_VERSION": "3.12.2",
-    "HOWLER_VERSION": "2.2.4",
-    "SOCKETIO_VERSION": "4.7.2"
+    "ENABLE_ANALYTICS": "true"
   },
   "headers": [
     {
@@ -65,12 +61,11 @@
   "git": {
     "deploymentMessage": "Deploying Epic Tech AI Chat with 3D graphics and AI functionality"
   },
-  "buildCommand": "npm run build",
+  "buildCommand": "npm install",
   "outputDirectory": ".",
   "installCommand": "npm install",
   "devCommand": "npm run dev",
   "framework": "static",
-  "frameworkVersion": 2,
   "regions": ["iad1"],
   "usage": {
     "builds": true,
@@ -81,67 +76,5 @@
   "logging": {
     "level": "info",
     "prefix": "[EpicTechAIChat]"
-  },
-  "analytics": {
-    "enabled": true,
-    "sampleRate": 1.0,
-    "includeCookies": true,
-    "includeQueryParams": false
-  },
-  "performance": {
-    "budgets": [
-      {
-        "type": "asset",
-        "path": "**/*.{js,css,html}",
-        "maxSize": "200kB"
-      },
-      {
-        "type": "media",
-        "path": "public/**/*",
-        "maxSize": "500kB"
-      }
-    ],
-    "prefetch": true,
-    "cacheControl": {
-      "staticAssets": "public,max-age=31536000,immutable",
-      "dynamicAssets": "no-cache"
-    }
-  },
-  "accessibility": {
-    "enable": true,
-    "rules": {
-      "aria-roles": "warn",
-      "button-name": "warn",
-      "color-contrast": "warn",
-      "duplicate-id": "warn",
-      "heading-level": "warn",
-      "image-alt": "warn",
-      "input-button-name": "warn",
-      "label": "warn",
-      "link-name": "warn",
-      "list": "warn",
-      "meta-viewport": "warn",
-      "nested-interactive": "warn",
-      "role-has-required-aria-props": "warn",
-      "scope-role": "warn",
-      "tabindex": "warn"
-    }
-  },
-  "errorHandling": {
-    "enable": true,
-    "retry": {
-      "maxAttempts": 3,
-      "delay": 1000,
-      "exponentialBackoff": true
-    },
-    "timeout": {
-      "api": 30000,
-      "static": 10000
-    },
-    "logging": {
-      "errors": true,
-      "warnings": true,
-      "debug": false
-    }
   }
 }
