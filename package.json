@@ -1,7 +1,7 @@
 {
-  "name": "cyberpunk-ai-chat",
-  "version": "2.0.0",
-  "description": "3D Cyberpunk AI Chat Application with advanced features and optimizations",
+  "name": "epic-tech-ai-chat",
+  "version": "1.0.0",
+  "description": "Epic Tech AI - Real-time 3D Chat Experience with advanced graphics and AI functionality",
   "main": "index.html",
   "scripts": {
     "dev": "serve -l 3000",
@@ -12,14 +12,13 @@
   },
   "dependencies": {
     "three": "^0.160.0",
-    "@react-three/fiber": "^8.15.0",
-    "@react-three/drei": "^9.88.0",
-    "@xenova/transformers": "^2.11.1",
+    "@types/three": "^0.160.0",
+    "troika-three-text": "^0.49.0",
+    "gsap": "^3.12.2",
+    "howler": "^2.2.4",
+    "socket.io-client": "^4.7.2",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-router-dom": "^6.8.0",
-    "lodash": "^4.17.21",
-    "axios": "^1.3.0"
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
     "serve": "^14.0.0",
@@ -39,7 +38,10 @@
     "vercel",
     "performance",
     "accessibility",
-    "analytics"
+    "analytics",
+    "gsap",
+    "threejs",
+    "socketio"
   ],
   "author": "Sm0k367",
   "license": "MIT",
@@ -62,7 +64,7 @@
   "files": [
     "index.html",
     "main.js",
-    "styles.css",
+    "style.css",
     "package.json",
     "vercel.json"
   ],
