@@ -68,4 +68,8 @@ socket.on('connect', () => {
 });
 socket.on('message', (message) => {
   console.log(`Received message: ${message}`);
-  // Render
+  // Render message
+});
+
+// Start rendering
+renderScene();
