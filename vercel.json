@@ -71,18 +71,6 @@
       "destination": "/.vercel/functions/api/$1"
     }
   ],
-  "functions": {
-    "api": {
-      "runtime": "nodejs18.x",
-      "memory": 1024,
-      "maxDuration": 30,
-      "environment": {
-        "NODE_ENV": "production",
-        "ANALYTICS_TRACKING_ID": "G-XXXXXXXXXX",
-        "ENABLE_ANALYTICS": "true"
-      }
-    }
-  },
   "trailingSlash": true,
   "cleanUrls": true,
   "images": {
@@ -110,7 +98,7 @@
   "regions": ["iad1"],
   "usage": {
     "builds": true,
-    "functions": true,
+    "functions": false,
     "edgeFunctions": false,
     "crons": false
   },
