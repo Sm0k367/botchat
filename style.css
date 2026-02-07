@@ -19,15 +19,14 @@ body {
     width: 100%;
     height: 100vh;
     position: relative;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr;
 }
 
 .cyberpunk-header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    grid-row: 1;
+    grid-column: 1;
     padding: 15px 20px;
     background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, transparent 100%);
     border-bottom: 2px solid #00ffff;
@@ -54,11 +53,13 @@ body {
 }
 
 .main-content {
-    flex: 1;
+    grid-row: 2;
+    grid-column: 1;
     position: relative;
     display: flex;
     flex-direction: column;
-    padding: 100px 20px 60px;
+    padding: 20px;
+    gap: 20px;
 }
 
 .chat-container {
@@ -71,6 +72,7 @@ body {
     box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
     max-width: 600px;
     margin: 0 auto;
+    width: 100%;
 }
 
 .chat-header {
@@ -177,10 +179,8 @@ body {
 }
 
 .status-bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    grid-row: 3;
+    grid-column: 1;
     padding: 10px 20px;
     background: rgba(0, 0, 0, 0.9);
     border-top: 1px solid #00ff00;
@@ -234,7 +234,7 @@ body {
 
 .cyberpunk-controls {
     position: absolute;
-    top: 180px;
+    top: 20px;
     right: 20px;
     z-index: 100;
     display: flex;
@@ -263,7 +263,7 @@ body {
 
 .data-stream {
     position: absolute;
-    top: 180px;
+    top: 20px;
     right: 20px;
     width: clamp(150px, 30vw, 200px);
     height: clamp(250px, 40vh, 400px);
@@ -359,10 +359,8 @@ body {
 }
 
 .branding-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    grid-row: 3;
+    grid-column: 1;
     padding: 15px 20px;
     background: rgba(0, 0, 0, 0.9);
     border-top: 1px solid #00ff00;
@@ -377,7 +375,7 @@ body {
 }
 
 /* Three.js Canvas Styles */
-canvas {
+#three-canvas {
     position: absolute;
     top: 0;
     left: 0;
