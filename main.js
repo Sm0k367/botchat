@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Box, Text } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import { useState, useEffect, useRef } from 'react';
 
 // Cyberpunk 3D Scene Component
