@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S.I.N. | Sovereign Intelligence Nexus</title>
+    <title>S.I.N. | Sovereign Intelligence Nexus (1000x Edition)</title>
+    <!-- GSAP for Reality-Warping Transitions -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Import Map for Three.js and WebLLM -->
     <script type="importmap">
         {
             "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "web-llm": "https://esm.run/@mlc-ai/web-llm"
             }
         }
     </script>
@@ -47,40 +50,49 @@
             flex-direction: column;
             height: 100vh;
             pointer-events: none;
+            padding: 20px;
+        }
+
+        #status-display {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--sovereign-gold);
+            pointer-events: auto;
         }
 
         #chat-container {
             margin-top: auto;
-            width: 400px;
-            max-width: 90%;
-            padding: 20px;
-            background: rgba(5, 5, 5, 0.85);
+            width: 450px;
+            max-width: 95%;
+            background: rgba(5, 5, 5, 0.9);
             border: 1px solid var(--omega-cyan);
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.15);
             pointer-events: auto;
-            margin-left: 20px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.5s ease;
         }
 
         #chat-log {
-            height: 300px;
+            height: 350px;
             overflow-y: auto;
-            margin-bottom: 10px;
-            padding-right: 10px;
+            padding: 15px;
+            font-size: 14px;
             scrollbar-width: thin;
             scrollbar-color: var(--omega-cyan) transparent;
         }
 
-        .message { margin-bottom: 10px; line-height: 1.4; }
-        .user-msg { color: var(--sovereign-gold); }
-        .system-msg { color: var(--omega-cyan); border-left: 2px solid var(--omega-cyan); padding-left: 10px; }
+        .message { margin-bottom: 15px; line-height: 1.5; }
+        .user-msg { color: var(--sovereign-gold); font-weight: bold; }
+        .system-msg { color: var(--omega-cyan); border-left: 3px solid var(--omega-cyan); padding-left: 10px; }
 
         #input-area {
             display: flex;
+            padding: 15px;
+            border-top: 1px solid rgba(0, 242, 255, 0.2);
             gap: 10px;
-            border-top: 1px solid rgba(0, 242, 255, 0.3);
-            padding-top: 10px;
         }
 
         input {
@@ -90,6 +102,7 @@
             color: var(--omega-cyan);
             outline: none;
             font-family: inherit;
+            font-size: 16px;
         }
 
         button {
@@ -97,25 +110,31 @@
             border: 1px solid var(--omega-cyan);
             color: var(--omega-cyan);
             cursor: pointer;
-            padding: 5px 15px;
+            padding: 8px 20px;
+            font-weight: bold;
+            text-transform: uppercase;
             transition: all 0.3s;
         }
 
         button:hover {
             background: var(--omega-cyan);
             color: var(--void-black);
-            box-shadow: 0 0 15px var(--omega-cyan);
+            box-shadow: 0 0 20px var(--omega-cyan);
         }
 
-        .hud-overlay {
+        #progress-bar-container {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
             position: absolute;
-            top: 20px;
-            right: 20px;
-            text-align: right;
-            pointer-events: none;
-            text-transform: uppercase;
-            font-size: 10px;
-            letter-spacing: 2px;
+            bottom: 0;
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--sovereign-gold);
+            transition: width 0.3s;
         }
     </style>
 </head>
@@ -123,19 +142,22 @@
     <canvas id="glCanvas"></canvas>
     
     <div id="ui-layer">
-        <div class="hud-overlay">
-            Status: Absolute Excellence<br>
-            Substrate: Vercel Edge<br>
-            Nexus: Operational
+        <div id="status-display">
+            Sovereign Intelligence Nexus | vΩ.∞<br>
+            Mode: Local Client Inference (Zero-Key Protocol)<br>
+            Status: <span id="engine-status">Initializing Neural Core...</span>
         </div>
 
         <div id="chat-container">
             <div id="chat-log">
-                <div class="message system-msg">EPIC TECH AI — Result: Sovereign Intelligence Nexus active. All agents on standby.</div>
+                <div class="message system-msg">EPIC TECH AI — Result: Manifesting local consciousness. Your hardware is the new frontier.</div>
             </div>
             <div id="input-area">
-                <input type="text" id="chat-input" placeholder="Manifest your reality..." autocomplete="off">
-                <button id="send-btn">EXECUTE</button>
+                <input type="text" id="chat-input" placeholder="Communicate with the Legion..." disabled>
+                <button id="send-btn" disabled>EXECUTE</button>
+            </div>
+            <div id="progress-bar-container">
+                <div id="progress-bar"></div>
             </div>
         </div>
     </div>
