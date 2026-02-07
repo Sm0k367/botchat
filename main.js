@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, Box, Text } from '@react-three/drei';
 import { useState, useEffect, useRef } from 'react';
 
 // Cyberpunk 3D Scene Component
@@ -199,9 +199,65 @@ function App() {
     );
 }
 
+// Initialize Three.js scene
+function initThreeJS() {
+    const canvas = document.getElementById('three-canvas');
+    if (!canvas) return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x0a0a0a, 1);
+
+    // Add lights
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+
+    const pointLight1 = new THREE.PointLight(0x00ffff, 1, 100);
+    pointLight1.position.set(10, 10, 10);
+    scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0xff00ff, 0.5, 100);
+    pointLight2.position.set(-10, -10, -10);
+    scene.add(pointLight2);
+
+    // Add cyberpunk cube
+    const geometry = new THREE.BoxGeometry(2, 2, 2);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x00ffff,
+        emissive: 0x00ffff,
+        emissiveIntensity: 0.5,
+        wireframe: true
+    });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+
+    camera.position.z = 5;
+
+    // Animation loop
+    function animate() {
+        requestAnimationFrame(animate);
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+}
+
 // Render the app
 const root = document.getElementById('root');
 const rootElement = document.createElement('div');
 root.appendChild(rootElement);
 
 ReactDOM.render(<App />, rootElement);
+
+// Initialize Three.js
+initThreeJS();
