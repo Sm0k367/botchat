@@ -4,9 +4,9 @@
   "description": "3D Cyberpunk AI Chat Application",
   "main": "index.html",
   "scripts": {
-    "start": "serve -s .",
+    "dev": "serve -l 3000",
     "build": "echo 'No build needed for static site'",
-    "dev": "serve -l 3000"
+    "start": "serve -s ."
   },
   "dependencies": {
     "three": "^0.160.0",
@@ -18,5 +18,14 @@
   },
   "devDependencies": {
     "serve": "^14.0.0"
-  }
+  },
+  "keywords": [
+    "cyberpunk",
+    "ai",
+    "chat",
+    "3d",
+    "vercel"
+  ],
+  "author": "Sm0k367",
+  "license": "MIT"
 }
