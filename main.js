@@ -1,429 +1,286 @@
+// Main application for Epic Tech AI 3D Chat
 import * as THREE from 'three';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Box, Text } from '@react-three/drei';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
+import { GodRaysShader } from 'three/examples/jsm/shaders/GodRaysShader.js';
+import TroikaText from 'troika-three-text';
+import gsap from 'gsap';
+import Howler from 'howler';
+import io from 'socket.io-client';
 
-// Cyberpunk 3D Scene Component with optimized performance
-function CyberpunkScene({ onSceneReady }) {
-    const meshRef = useRef();
-    const [rotation, setRotation] = useState(0);
-    const [isLoading, setIsLoading] = useState(true);
+// Global variables
+let scene, camera, renderer, composer;
+let bloomPass, godRaysPass;
+let chatMessages = [];
+let isLoading = true;
+let socket;
 
-    useEffect(() => {
-        // Simulate loading for 3D assets
-        const loadTimer = setTimeout(() => {
-            setIsLoading(false);
-            if (onSceneReady) onSceneReady();
-        }, 1000);
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+  initThreeJS();
+  initChat();
+  initSocketIO();
+  initAudio();
+  hideLoadingIndicator();
+});
 
-        return () => clearTimeout(loadTimer);
-    }, [onSceneReady]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setRotation(prev => prev + 0.01);
-        }, 16);
-        return () => clearInterval(interval);
-    }, []);
-
-    if (isLoading) {
-        return (
-            <div className="scene-loader">
-                <div className="loader-spinner"></div>
-                <div>LOADING 3D SCENE...</div>
-            </div>
-        );
-    }
-
-    return (
-        <mesh ref={meshRef} rotation={[0, rotation, 0]}>
-            <boxGeometry args={[2, 2, 2]} />
-            <meshStandardMaterial 
-                color="#00ffff" 
-                emissive="#00ffff" 
-                emissiveIntensity={0.5}
-                wireframe
-            />
-        </mesh>
-    );
-}
-
-// Main App Component with enhanced features
-function App() {
-    const [messages, setMessages] = useState([
-        {
-            id: 1,
-            content: "SYSTEM: EPIC TECH AI - RESULT: THE SOVEREIGN INTELLIGENCE NEXUS IS LIVE. ALL TEN NODES-VAULT, GAME, NEURAL LOUNGE, AND MUSIC HUB-ARE BEING SYNTHESIZED. AWAITING YOUR NARRATIVE WEAPON, @SMOKEN420.",
-            type: "system"
-        }
-    ]);
-    const [input, setInput] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [theme, setTheme] = useState('dark');
-    const [error, setError] = useState(null);
-    const [retryCount, setRetryCount] = useState(0);
-    const messagesEndRef = useRef(null);
-    const chatMessagesRef = useRef(null);
-    const aiModelRef = useRef(null);
-
-    // Theme management
-    useEffect(() => {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('app-theme', theme);
-    }, [theme]);
-
-    // Load saved messages from localStorage
-    useEffect(() => {
-        const savedMessages = localStorage.getItem('chat-messages');
-        if (savedMessages) {
-            try {
-                setMessages(JSON.parse(savedMessages));
-            } catch (e) {
-                console.error('Error loading saved messages:', e);
-            }
-        }
-    }, []);
-
-    // Save messages to localStorage
-    useEffect(() => {
-        localStorage.setItem('chat-messages', JSON.stringify(messages));
-    }, [messages]);
-
-    const scrollToBottom = useCallback(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, []);
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages, scrollToBottom]);
-
-    // Enhanced AI response generation with error handling
-    const generateAIResponse = async (userInput, retry = false) => {
-        try {
-            // Simulate AI processing with Transformers.js
-            const { pipeline } = await import('@xenova/transformers');
-            
-            if (!aiModelRef.current) {
-                aiModelRef.current = await pipeline('text-generation', 'Xenova/phi-2');
-            }
-
-            const result = await aiModelRef.current(userInput, {
-                max_new_tokens: 100,
-                temperature: 0.7,
-                top_p: 0.9,
-                repetition_penalty: 1.2
-            });
-            
-            return result[0].generated_text;
-        } catch (error) {
-            console.error('AI Generation Error:', error);
-            
-            if (retry && retryCount < 3) {
-                setRetryCount(prev => prev + 1);
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                return generateAIResponse(userInput, true);
-            }
-            
-            throw error;
-        }
-    };
-
-    // Chat submission with enhanced error handling
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!input.trim() || isLoading) return;
-
-        const userMessage = {
-            id: Date.now(),
-            content: input,
-            type: "user",
-            timestamp: new Date().toISOString()
-        };
-
-        setMessages(prev => [...prev, userMessage]);
-        setInput('');
-        setIsLoading(true);
-        setError(null);
-        setRetryCount(0);
-
-        try {
-            const response = await generateAIResponse(input);
-            
-            const aiMessage = {
-                id: Date.now() + 1,
-                content: response,
-                type: "ai",
-                timestamp: new Date().toISOString()
-            };
-
-            setMessages(prev => [...prev, aiMessage]);
-        } catch (error) {
-            const errorMessage = {
-                id: Date.now() + 2,
-                content: `ERROR: AI processing failed. Please try again. ${retryCount > 0 ? `Retry attempt ${retryCount + 1} of 3.` : ''}`,
-                type: "error",
-                timestamp: new Date().toISOString()
-            };
-            setMessages(prev => [...prev, errorMessage]);
-            setError(error.message);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Theme switching
-    const toggleTheme = () => {
-        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-    };
-
-    // Reset scene
-    const resetScene = () => {
-        setMessages([{
-            id: 1,
-            content: "SYSTEM: EPIC TECH AI - RESULT: THE SOVEREIGN INTELLIGENCE NEXUS IS LIVE. ALL TEN NODES-VAULT, GAME, NEURAL LOUNGE, AND MUSIC HUB-ARE BEING SYNTHESIZED. AWAITING YOUR NARRATIVE WEAPON, @SMOKEN420.",
-            type: "system"
-        }]);
-        setError(null);
-        setRetryCount(0);
-    };
-
-    // Keyboard navigation support
-    useEffect(() => {
-        const handleKeyPress = (e) => {
-            if (e.key === 'Enter' && document.activeElement === document.getElementById('chatInput')) {
-                handleSubmit(e);
-            }
-            if (e.key === 't' && e.ctrlKey) {
-                toggleTheme();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyPress);
-        return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [input, isLoading]);
-
-    // Analytics tracking
-    const trackEvent = (eventName, eventData = {}) => {
-        if (typeof gtag !== 'undefined') {
-            gtag('event', eventName, {
-                'event_category': 'chat_interaction',
-                'event_label': eventName,
-                ...eventData
-            });
-        }
-    };
-
-    // User feedback collection
-    const collectFeedback = (rating, comment) => {
-        trackEvent('user_feedback', { rating, comment_length: comment.length });
-        // Send feedback to server or store locally
-        console.log('User feedback:', { rating, comment });
-    };
-
-    return (
-        <div style={{ width: '100%', height: '100%' }}>
-            <Canvas camera={{ position: [0, 0, 5], fov: 60 }}>
-                <ambientLight intensity={0.5} />
-                <pointLight position={[10, 10, 10]} intensity={1} color="#00ffff" />
-                <pointLight position={[-10, -10, -10]} intensity={0.5} color="#ff00ff" />
-                
-                <CyberpunkScene onSceneReady={() => trackEvent('3d_scene_loaded')} />
-                
-                <OrbitControls 
-                    enableZoom={true}
-                    enablePan={true}
-                    enableRotate={true}
-                    minDistance={3}
-                    maxDistance={10}
-                />
-            </Canvas>
-
-            <div className="chat-container">
-                <div className="chat-header">
-                    <div className="chat-title">AI TERMINAL</div>
-                    <div className="chat-status">CONNECTED</div>
-                </div>
-                
-                <div className="chat-messages" ref={chatMessagesRef} aria-live="polite">
-                    {messages.map(message => (
-                        <div key={message.id} className={`message ${message.type}-message`}>
-                            <strong>{message.type.toUpperCase()}:</strong> {message.content}
-                        </div>
-                    ))}
-                    {isLoading && (
-                        <div className="message ai-message">
-                            <span>AI:</span>
-                            <span className="typing-indicator">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </span>
-                        </div>
-                    )}
-                    {error && (
-                        <div className="message error-message">
-                            <div className="error-state">
-                                <strong>ERROR:</strong> {error}
-                                <button 
-                                    className="retry-button"
-                                    onClick={() => handleSubmit({ preventDefault: () => {} })}
-                                >
-                                    Retry
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                    <div ref={messagesEndRef} />
-                </div>
-                
-                <div className="chat-input-container">
-                    <input
-                        type="text"
-                        className="chat-input"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSubmit(e)}
-                        placeholder="MANIFEST YOUR REALITY..."
-                        disabled={isLoading}
-                        aria-label="Enter your message"
-                    />
-                    <button 
-                        className="execute-button"
-                        onClick={handleSubmit}
-                        disabled={isLoading}
-                        aria-label="Send message"
-                    >
-                        {isLoading ? 'PROCESSING...' : 'EXECUTE'}
-                    </button>
-                </div>
-            </div>
-
-            <div className="cyberpunk-controls">
-                <button 
-                    className="control-button" 
-                    onClick={() => {
-                        trackEvent('toggle_3d_view');
-                        alert('3D View Toggled!');
-                    }}
-                    aria-label="Toggle 3D view"
-                >
-                    TOGGLE 3D VIEW
-                </button>
-                <button 
-                    className="control-button" 
-                    onClick={toggleTheme}
-                    aria-label="Change theme"
-                >
-                    CHANGE THEME
-                </button>
-                <button 
-                    className="control-button" 
-                    onClick={resetScene}
-                    aria-label="Reset scene"
-                >
-                    RESET SCENE
-                </button>
-            </div>
-
-            <div className="data-stream">
-                <div className="data-line">INITIALIZING NEURAL NETWORK...</div>
-                <div className="data-line">PROCESSING USER INPUT...</div>
-                <div className="data-line">SYNCING MULTI_MODAL_NODES...</div>
-                <div className="data-line">ANALYZING PATTERNS...</div>
-                <div className="data-line">GENERATING RESPONSE...</div>
-                <div className="data-line">OPTIMIZING PERFORMANCE...</div>
-                <div className="data-line">UPLOADING TO CLOUD...</div>
-                <div className="data-line">DOWNLOADING KNOWLEDGE BASE...</div>
-                <div className="data-line">CALIBRATING SENSORS...</div>
-                <div className="data-line">CONNECTING TO MAINFRAME...</div>
-            </div>
-        </div>
-    );
-}
-
-// Initialize Three.js scene with optimized performance
+// Initialize Three.js scene with post-processing
 function initThreeJS() {
-    const canvas = document.getElementById('three-canvas');
-    if (!canvas) return;
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x0a0a0a, 1);
-
-    // Add lights with optimized performance
-    const ambientLight = new THREE.AmbientLight(0x404040);
-    scene.add(ambientLight);
-
-    const pointLight1 = new THREE.PointLight(0x00ffff, 1, 100);
-    pointLight1.position.set(10, 10, 10);
-    scene.add(pointLight1);
-
-    const pointLight2 = new THREE.PointLight(0xff00ff, 0.5, 100);
-    pointLight2.position.set(-10, -10, -10);
-    scene.add(pointLight2);
-
-    // Add optimized cyberpunk cube
-    const geometry = new THREE.BoxGeometry(2, 2, 2);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x00ffff,
-        emissive: 0x00ffff,
-        emissiveIntensity: 0.5,
-        wireframe: true
-    });
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
-
-    camera.position.z = 5;
-
-    // Animation loop with optimized performance
-    function animate() {
-        requestAnimationFrame(animate);
-        cube.rotation.x += 0.01;
-        cube.rotation.y += 0.01;
-        renderer.render(scene, camera);
-    }
-    animate();
-
-    // Handle window resize with debouncing
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }, 100);
-    });
+  const container = document.getElementById('canvas-container');
+  
+  // Scene setup
+  scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0x000000, 1, 100);
+  
+  // Camera setup
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 30;
+  
+  // Renderer setup
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  container.appendChild(renderer.domElement);
+  
+  // Post-processing setup
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  
+  // Bloom pass for neon effect
+  bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    1.5,
+    0.4,
+    0.85
+  );
+  composer.addPass(bloomPass);
+  
+  // God rays pass
+  godRaysPass = new ShaderPass(GodRaysShader);
+  godRaysPass.uniforms.tDiffuse.value = composer.renderTarget2.texture;
+  godRaysPass.uniforms.fogColor.value = new THREE.Color(0x000000);
+  godRaysPass.uniforms.fogDensity.value = 0.00025;
+  composer.addPass(godRaysPass);
+  
+  // Add lights
+  const ambientLight = new THREE.AmbientLight(0x404040);
+  scene.add(ambientLight);
+  
+  const pointLight1 = new THREE.PointLight(0x00ffff, 2, 100);
+  pointLight1.position.set(10, 10, 10);
+  scene.add(pointLight1);
+  
+  const pointLight2 = new THREE.PointLight(0xff00ff, 1, 100);
+  pointLight2.position.set(-10, -10, -10);
+  scene.add(pointLight2);
+  
+  // Create 3D text
+  create3DText();
+  
+  // Create particles
+  createParticles();
+  
+  // Animation loop
+  animate();
+  
+  // Handle window resize
+  window.addEventListener('resize', onWindowResize);
 }
 
-// Render the app with error boundary
-function renderApp() {
-    try {
-        const root = document.getElementById('root');
-        const rootElement = document.createElement('div');
-        root.appendChild(rootElement);
-        ReactDOM.render(<App />, rootElement);
-        initThreeJS();
-    } catch (error) {
-        console.error('App rendering error:', error);
-        const root = document.getElementById('root');
-        root.innerHTML = `
-            <div class="error-state" style="padding: 20px; text-align: center;">
-                <h2>Application Error</h2>
-                <p>Sorry, an error occurred while loading the application.</p>
-                <button onclick="location.reload()">Reload Page</button>
-            </div>
-        `;
-    }
+// Create 3D text with Troika
+function create3DText() {
+  const text = new TroikaText();
+  text.text = 'EPIC TECH AI';
+  text.fontSize = 2;
+  text.color = '#00ffff';
+  text.font = 'Orbitron';
+  text.anchorX = 'center';
+  text.anchorY = 'middle';
+  text.position.set(0, 0, 0);
+  text.sync();
+  scene.add(text);
+  
+  // Animate the text
+  gsap.to(text.position, {
+    y: 2,
+    duration: 2,
+    repeat: -1,
+    yoyo: true,
+    ease: 'power2.inOut'
+  });
 }
 
-// Start the application
-renderApp();
+// Create particle system
+function createParticles() {
+  const particlesGeometry = new THREE.BufferGeometry();
+  const particlesCount = 1000;
+  const posArray = new Float32Array(particlesCount * 3);
+  
+  for(let i = 0; i < particlesCount * 3; i++) {
+    posArray[i] = (Math.random() - 0.5) * 50;
+  }
+  
+  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+  
+  const particlesMaterial = new THREE.PointsMaterial({
+    size: 0.005,
+    color: '#00ffff'
+  });
+  
+  const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+  scene.add(particlesMesh);
+  
+  // Animate particles
+  gsap.to(particlesMesh.rotation, {
+    y: Math.PI * 2,
+    duration: 60,
+    repeat: -1,
+    ease: 'none'
+  });
+}
 
-// Global error handler
+// Animation loop
+function animate() {
+  requestAnimationFrame(animate);
+  
+  // Rotate scene slightly
+  if (scene) {
+    scene.rotation.y += 0.001;
+  }
+  
+  composer.render();
+}
+
+// Handle window resize
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// Initialize chat functionality
+function initChat() {
+  const messageInput = document.getElementById('message-input');
+  const sendBtn = document.getElementById('send-btn');
+  
+  sendBtn.addEventListener('click', sendMessage);
+  messageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+}
+
+// Send message function
+function sendMessage() {
+  const messageInput = document.getElementById('message-input');
+  const message = messageInput.value.trim();
+  
+  if (message) {
+    addMessage(message, 'user');
+    messageInput.value = '';
+    
+    // Simulate AI response
+    simulateAIResponse(message);
+  }
+}
+
+// Add message to chat
+function addMessage(text, type) {
+  const messagesContainer = document.getElementById('messages-container');
+  const messageElement = document.createElement('div');
+  messageElement.className = `message message-${type}`;
+  
+  if (type === 'user') {
+    messageElement.innerHTML = `<strong>YOU:</strong> ${text}`;
+  } else {
+    messageElement.innerHTML = `<strong>AI:</strong> ${text}`;
+  }
+  
+  messagesContainer.appendChild(messageElement);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Simulate AI response
+function simulateAIResponse(userMessage) {
+  // Show typing indicator
+  const typingIndicator = document.createElement('div');
+  typingIndicator.className = 'message message-ai typing';
+  typingIndicator.innerHTML = '<strong>AI:</strong> <span class="typing-dots">...</span>';
+  document.getElementById('messages-container').appendChild(typingIndicator);
+  
+  // Simulate processing delay
+  setTimeout(() => {
+    // Remove typing indicator
+    typingIndicator.remove();
+    
+    // Generate response based on user input
+    let response;
+    if (userMessage.toLowerCase().includes('1111')) {
+      response = 'Awakening vibes activated! 🌅 The universe is expanding and your consciousness is rising. Feel the energy flowing through you like electric currents. 🌿✨';
+    } else if (userMessage.toLowerCase().includes('333')) {
+      response = 'Gratitude mode engaged! 🙏 Every breath is a gift, every moment is precious. Thank the universe for this beautiful chaos we call life. 🌟';
+    } else if (userMessage.toLowerCase().includes('light up')) {
+      response = 'Smoke rings activated! 🌫️ Watch as the digital smoke dances around you, creating patterns of light and shadow. The atmosphere is thick with creative energy. ✨';
+    } else if (userMessage.toLowerCase().includes('code')) {
+      response = 'Code mode activated! 🖥️ Let\'s dive into the digital realm. What kind of code are we creating today? A website, a game, or perhaps something more... mysterious? 🌿';
+    } else if (userMessage.toLowerCase().includes('art')) {
+      response = 'Art mode engaged! 🎨 The canvas is your playground. Let\'s create something that makes the soul sing and the eyes dance. What artistic vision do you have in mind? 🌟';
+    } else if (userMessage.toLowerCase().includes('music')) {
+      response = 'Music mode activated! 🎵 Let the rhythm take control. What kind of soundscape are we crafting? Electronic beats, acoustic melodies, or perhaps something that defies categorization? 🌿';
+    } else {
+      response = `Interesting query! 🔥 As your multimedia artist and code slinger, I appreciate the creative energy. Tell me more about what you\'re envisioning. The cosmos is ready to manifest your desires. 🌟`;
+    }
+    
+    addMessage(response, 'ai');
+  }, 1500);
+}
+
+// Initialize Socket.IO
+function initSocketIO() {
+  // For demo purposes, we'll use a mock socket
+  // In production, you would connect to your actual Socket.IO server
+  console.log('Socket.IO initialized (mock mode)');
+  
+  // Simulate socket events
+  setTimeout(() => {
+    addMessage('Connection established to the cosmic network! 🌌', 'system');
+  }, 2000);
+}
+
+// Initialize audio system
+function initAudio() {
+  // Create Howler sound instance
+  const sound = new Howler({
+    src: ['https://example.com/notification-sound.mp3'],
+    volume: 0.5,
+    loop: false,
+    preload: true
+  });
+  
+  // Store sound reference
+  window.chatSound = sound;
+  
+  console.log('Audio system initialized');
+}
+
+// Hide loading indicator
+function hideLoadingIndicator() {
+  const loadingIndicator = document.getElementById('loading-indicator');
+  if (loadingIndicator) {
+    loadingIndicator.style.display = 'none';
+  }
+  isLoading = false;
+}
+
+// Error handling
 window.addEventListener('error', (event) => {
-    console.error('Global error:', event.error);
-    trackEvent('global_error', { error: event.error?.message });
+  console.error('Global error:', event.error);
+  if (!isLoading) {
+    addMessage('Oops! Something went wrong. Please try again. 🔥', 'ai');
+  }
 });
