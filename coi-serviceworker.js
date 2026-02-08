@@ -20,6 +20,7 @@ if (typeof window === "undefined") {
                     if (response.status === 0) return response;
 
                     const newHeaders = new Headers(response.headers);
+                    // AXIOMATIC SECURITY INJECTION: Unlocking high-speed memory
                     newHeaders.set("Cross-Origin-Embedder-Policy", "require-corp");
                     newHeaders.set("Cross-Origin-Opener-Policy", "same-origin");
 
@@ -40,7 +41,7 @@ if (typeof window === "undefined") {
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register(swUrl).then((registration) => {
                 registration.addEventListener("updatefound", () => {
-                    console.log("ACCELERATOR_UPDATE: Synchronizing Neural Core...");
+                    console.log("ACCELERATOR_SYNC: Updating Neural Core...");
                     location.reload();
                 });
             });
