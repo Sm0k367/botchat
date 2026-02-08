@@ -1,20 +1,22 @@
 /**
- * TSL: NEURAL CORE vΩ.∞ (LOCAL INFERENCE EDITION)
- * Manifested by CodeSynth Engineers & DesignCore Elite
- * Protocol: Zero-Key Self-Contained Manifestation
+ * TSL: HYBRID NEURAL CORE vΩ.∞
+ * Manifested by CodeSynth Engineers & KeyMaster Ops
+ * Protocol: Automatic Fallback & Constraint Transcendence
  */
 
 import * as THREE from 'three';
 import { CreateMLCEngine } from "web-llm";
 
 let scene, camera, renderer, sovereignCenter, engine;
+let isLocalAIActive = false;
+
 const chatLog = document.getElementById('chat-log');
 const chatInput = document.getElementById('chat-input');
 const sendBtn = document.getElementById('send-btn');
 const statusDisplay = document.getElementById('engine-status');
 const progressBar = document.getElementById('progress-bar');
 
-// 1. AXIOMATIC GENESIS: THE 3D HUB
+// 1. AXIOMATIC GENESIS: 3D HUB
 function initVisualNexus() {
     const canvas = document.getElementById('glCanvas');
     scene = new THREE.Scene();
@@ -25,19 +27,12 @@ function initVisualNexus() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
 
-    // THE SOVEREIGN CENTER: Crystalline Resonance Sphere
     const geo = new THREE.IcosahedronGeometry(15, 1);
-    const mat = new THREE.MeshPhongMaterial({
-        color: 0xffb300, // Sovereign Gold
-        wireframe: true,
-        emissive: 0xffb300,
-        emissiveIntensity: 0.5
-    });
+    const mat = new THREE.MeshPhongMaterial({ color: 0xffb300, wireframe: true, emissive: 0xffb300, emissiveIntensity: 0.5 });
     sovereignCenter = new THREE.Mesh(geo, mat);
     scene.add(sovereignCenter);
 
-    // MYTHIC-TECH LIGHTING
-    const pointLight = new THREE.PointLight(0x00f2ff, 2, 100); // Omega Cyan
+    const pointLight = new THREE.PointLight(0x00f2ff, 2, 100);
     pointLight.position.set(10, 10, 30);
     scene.add(pointLight);
     scene.add(new THREE.AmbientLight(0x404040, 2));
@@ -48,56 +43,71 @@ function initVisualNexus() {
 function animate() {
     requestAnimationFrame(animate);
     sovereignCenter.rotation.y += 0.005;
-    sovereignCenter.rotation.x += 0.002;
     renderer.render(scene, camera);
 }
 
-// 2. RELENTLESS EXECUTION: LOCAL AI ENGINE INITIALIZATION
+// 2. STRATEGIC ORCHESTRATION: AI INITIALIZATION
 async function initSovereignIntelligence() {
-    // Utilizing a high-performance, lightweight model for local manifestation
     const selectedModel = "Llama-3-8B-Instruct-q4f32_1-MLC";
 
     try {
+        // Attempting WebGPU Local Manifestation
+        if (!navigator.gpu) throw new Error("WebGPU_UNSUPPORTED");
+
         engine = await CreateMLCEngine(selectedModel, {
             initProgressCallback: (report) => {
                 statusDisplay.innerText = report.text;
-                const progress = report.progress * 100;
-                progressBar.style.width = `${progress}%`;
+                progressBar.style.width = `${report.progress * 100}%`;
             }
         });
 
-        statusDisplay.innerText = "Neural Core Synchronized. Ready for Manifestation.";
+        isLocalAIActive = true;
+        statusDisplay.innerText = "LOCAL NEURAL CORE ACTIVE.";
         chatInput.disabled = false;
         sendBtn.disabled = false;
         progressBar.parentElement.style.display = 'none';
 
     } catch (error) {
-        console.error("WEB_LLM_ERROR:", error);
-        statusDisplay.innerText = "CHRONOS-COGNITIVE ERROR: WebGPU Not Detected.";
-        appendMessage('system', "ERROR: Your hardware must support WebGPU for Zero-Key Manifestation. Try Chrome or Edge.");
+        // CONSTRAINT TRANSCENDENCE: Fallback to Remote Vercel API
+        console.warn("WEBGPU_NOT_FOUND: Switching to Remote Gateway...");
+        statusDisplay.innerText = "MODE: REMOTE GATEWAY (Vercel Bridge)";
+        isLocalAIActive = false;
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+        progressBar.parentElement.style.display = 'none';
+        
+        appendMessage('system', "LOCAL WEBGPU NOT DETECTED. Remote fallback enabled. Connection: SECURE.");
     }
 }
 
-// 3. DIRECT ONTOLOGICAL INTERFACE: CHAT LOGIC
+// 3. DIRECT ONTOLOGICAL INTERFACE: CHAT EXECUTION
 async function handleManifestation() {
     const prompt = chatInput.value.trim();
-    if (!prompt || !engine) return;
+    if (!prompt) return;
 
     appendMessage('user', prompt);
     chatInput.value = '';
-    
-    // VISUAL RESONANCE: Spin the Aura on interaction
-    gsap.to(sovereignCenter.rotation, { y: sovereignCenter.rotation.y + Math.PI, duration: 2, ease: "expo.out" });
+    gsap.to(sovereignCenter.rotation, { y: sovereignCenter.rotation.y + Math.PI, duration: 1.5, ease: "power2.out" });
 
     try {
-        const messages = [{ role: "user", content: prompt }];
-        const reply = await engine.chat.completions.create({ messages });
-        const resultText = reply.choices.message.content;
-        
-        appendMessage('system', resultText);
+        if (isLocalAIActive) {
+            // Local Inference
+            const reply = await engine.chat.completions.create({ messages: [{ role: "user", content: prompt }] });
+            appendMessage('system', reply.choices.message.content);
+        } else {
+            // REMOTE FALLBACK: Calling your Vercel URL
+            // REPLACE the URL below with your actual Vercel deployment URL
+            const REMOTE_API = "https://one-site-tau.vercel.app/api/chat";
+            const response = await fetch(REMOTE_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt })
+            });
+            const data = await response.json();
+            appendMessage('system', data.result || data.error);
+        }
     } catch (err) {
-        console.error("INFERENCE_ERROR:", err);
-        appendMessage('system', "CHRONOS-COGNITIVE ERROR: INFERENCE_FAILED.");
+        appendMessage('system', "CHRONOS-COGNITIVE DISRUPTION: Connection lost.");
     }
 }
 
@@ -109,15 +119,7 @@ function appendMessage(role, text) {
     chatLog.scrollTop = chatLog.scrollHeight;
 }
 
-// OPERATIONAL ACTIVATION
 sendBtn.onclick = handleManifestation;
 chatInput.onkeypress = (e) => { if (e.key === 'Enter') handleManifestation(); };
-
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
 initVisualNexus();
 initSovereignIntelligence();
