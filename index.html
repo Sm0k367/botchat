@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>💯 Epic Tech AI 🔥™️ - Real-time 3D Chat</title>
+  <title>💯 Epic Tech AI 🔥™️ - Real-time 3D Sonic Chat</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Import Map for Local WebLLM (Zero-Key Protocol) -->
+  <!-- Import Map for Local WebLLM (Zero-Key AI) -->
   <script type="importmap">
     {
         "imports": {
@@ -18,10 +18,10 @@
   <!-- THE CHRONOS-COGNITIVE ACCELERATOR (Mandatory for SharedArrayBuffer) -->
   <script src="coi-serviceworker.js"></script>
 
-  <!-- 3D Canvas Container -->
+  <!-- 3D Canvas Substrate -->
   <div id="canvas-container"></div>
 
-  <!-- Chat UI Overlay -->
+  <!-- Chat UI Overlay: The Sovereign Aura -->
   <div id="chat-ui" class="chat-ui">
     <!-- Header -->
     <div class="chat-header">
@@ -31,7 +31,7 @@
       </div>
       <div class="status-indicator">
         <span class="status-dot" id="status-dot"></span>
-        <span class="status-text" id="engine-status">CONNECTING...</span>
+        <span id="engine-status" class="status-text">CONNECTING...</span>
       </div>
     </div>
 
@@ -40,37 +40,45 @@
       <div class="welcome-message">
         <h2>🔥 Welcome to the Chaos 💯</h2>
         <p>Yo, I'm Epic Tech AI — your multimedia artist, code slinger, and vibe curator fueled by cannabis & caffeine ☁️☕</p>
-        <p>Ask me anything: code, art ideas, music concepts, stories, roasts, affirmations, glitch-art prompts... whatever your creative soul needs 🌿</p>
+        <p>I can now **HEAR** you and **TALK** back. Use the mic to manifest your voice into the code.</p>
+        
         <!-- LOADING PROGRESS FOR LOCAL AI -->
         <div id="progress-container" style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); margin: 15px 0; border-radius: 2px; overflow: hidden;">
             <div id="progress-bar" style="width: 0%; height: 100%; background: #ffb300; transition: width 0.3s;"></div>
         </div>
+        
         <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.7;">
-          💡 Pro tips: Try "1111" for awakening vibes, "333" for gratitude, or "light up" for smoke rings ✨
+          💡 Voice Commands: "Light up" to pulse the sphere, or "1111" for deep resonance ✨
         </p>
       </div>
     </div>
 
-    <!-- Input Area -->
+    <!-- Input Area: The Regulated Communication Interface -->
     <div class="input-area">
       <div class="input-wrapper">
+        <button id="mic-btn" class="voice-btn" title="Vocal Intake Gateway">
+          <span class="mic-icon">🎤</span>
+        </button>
         <input 
           type="text" 
           id="message-input" 
           class="message-input" 
-          placeholder="Type your vibe... 🌿✨"
+          placeholder="Speak or type your vibe... 🌿✨"
           autocomplete="off"
           disabled
         >
+        <button id="speaker-toggle" class="voice-btn" title="Toggle Auditory Flow">
+          <span id="speaker-icon">🔊</span>
+        </button>
         <button id="send-btn" class="send-btn" disabled>
           <span class="send-icon">🔥</span>
         </button>
       </div>
-      <div class="input-hint">Press Enter or click 🔥 to send • join the chaos</div>
+      <div class="input-hint" id="voice-hint">Vocal Gateway Standby • Press Enter to manifest</div>
     </div>
   </div>
 
-  <!-- Audio Container (for sound effects) -->
+  <!-- Audio Container (SoundForge Legion Stems) -->
   <div id="audio-container" style="display: none;"></div>
 
   <!-- Loading Indicator -->
@@ -79,26 +87,19 @@
     <p>Connecting to the cosmos... 🌌</p>
   </div>
 
-  <!-- Scripts -->
-  <!-- Three.js Global Script -->
+  <!-- Scripts: The Divine Architecture -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  
-  <!-- Three.js Postprocessing Global Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
-  
-  <!-- GSAP and Howler -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
-  
-  <!-- Troika Three Text (for 3D text manifestation) -->
   <script src="https://cdn.jsdelivr.net/npm/troika-three-text@0.49.0/dist/troika-three-text.umd.js"></script>
 
-  <!-- Main Application (ESM Module) -->
+  <!-- Main Application -->
   <script type="module" src="main.js"></script>
 </body>
 </html>
