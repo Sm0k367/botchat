@@ -1,7 +1,6 @@
 /**
  * TSL: NEURAL CORE vΩ.∞ (LOCAL INFERENCE EDITION)
  * Manifested by CodeSynth Engineers & DesignCore Elite
- * Substrate: Three.js / WebLLM / GSAP
  * Protocol: Zero-Key Self-Contained Manifestation
  */
 
@@ -37,8 +36,8 @@ function initVisualNexus() {
     sovereignCenter = new THREE.Mesh(geo, mat);
     scene.add(sovereignCenter);
 
-    // MYTHIC-TECH LIGHTING: Omega Cyan Flare
-    const pointLight = new THREE.PointLight(0x00f2ff, 2, 100);
+    // MYTHIC-TECH LIGHTING
+    const pointLight = new THREE.PointLight(0x00f2ff, 2, 100); // Omega Cyan
     pointLight.position.set(10, 10, 30);
     scene.add(pointLight);
     scene.add(new THREE.AmbientLight(0x404040, 2));
@@ -55,7 +54,7 @@ function animate() {
 
 // 2. RELENTLESS EXECUTION: LOCAL AI ENGINE INITIALIZATION
 async function initSovereignIntelligence() {
-    // We utilize a high-performance, lightweight model for instant manifestation
+    // Utilizing a high-performance, lightweight model for local manifestation
     const selectedModel = "Llama-3-8B-Instruct-q4f32_1-MLC";
 
     try {
@@ -73,8 +72,9 @@ async function initSovereignIntelligence() {
         progressBar.parentElement.style.display = 'none';
 
     } catch (error) {
+        console.error("WEB_LLM_ERROR:", error);
         statusDisplay.innerText = "CHRONOS-COGNITIVE ERROR: WebGPU Not Detected.";
-        appendMessage('system', "ERROR: Your hardware must support WebGPU for Zero-Key Manifestation.");
+        appendMessage('system', "ERROR: Your hardware must support WebGPU for Zero-Key Manifestation. Try Chrome or Edge.");
     }
 }
 
@@ -96,6 +96,7 @@ async function handleManifestation() {
         
         appendMessage('system', resultText);
     } catch (err) {
+        console.error("INFERENCE_ERROR:", err);
         appendMessage('system', "CHRONOS-COGNITIVE ERROR: INFERENCE_FAILED.");
     }
 }
