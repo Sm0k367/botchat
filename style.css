@@ -1,7 +1,8 @@
 /**
  * TSL: THE AESTHETIC LAW vΩ.∞
- * Project: Chaos Gateway (Epic Tech AI ™️)
+ * Project: Epic Tech AI ™️ - Chaos Gateway
  * Manifested by DesignCore Elite
+ * Protocol: Mythic-Tech Fusion
  */
 
 :root {
@@ -10,7 +11,7 @@
   --sovereign-gold: #ffb300;
   --void-black: #050505;
   --glass-bg: rgba(5, 5, 5, 0.85);
-  --border-glow: 0 0 15px rgba(0, 242, 255, 0.3);
+  --border-glow: 0 0 20px rgba(0, 242, 255, 0.2);
 }
 
 * {
@@ -28,7 +29,7 @@ body, html {
   overflow: hidden;
 }
 
-/* 3D CANVAS SUBSTRATE */
+/* 1. 3D CANVAS SUBSTRATE */
 #canvas-container {
   position: fixed;
   top: 0;
@@ -36,17 +37,18 @@ body, html {
   width: 100%;
   height: 100%;
   z-index: 1;
+  pointer-events: auto;
 }
 
-/* CHAT UI OVERLAY: Glassmorphism & Visual Law */
+/* 2. CHAT UI OVERLAY - THE SOVEREIGN AURA */
 .chat-ui {
   position: relative;
   z-index: 10;
   display: flex;
   flex-direction: column;
   height: 100vh;
-  padding: 20px;
-  pointer-events: none; /* Allows 3D interaction behind UI */
+  padding: 30px;
+  pointer-events: none; /* UI Transparency for 3D interaction */
 }
 
 .chat-header {
@@ -59,51 +61,56 @@ body, html {
 }
 
 .title {
-  font-size: 1.8rem;
+  font-size: 2.2rem;
   color: var(--sovereign-gold);
-  text-shadow: 0 0 10px var(--sovereign-gold);
+  text-shadow: 0 0 15px rgba(255, 179, 0, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .subtitle {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  color: var(--omega-cyan);
   opacity: 0.8;
-  letter-spacing: 1px;
+  margin-top: 5px;
 }
 
+/* 3. STATUS INDICATOR - LIVE RESONANCE */
 .status-indicator {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   background: rgba(255, 0, 0, 0.1);
-  padding: 5px 12px;
-  border-radius: 20px;
+  padding: 6px 15px;
+  border-radius: 25px;
   border: 1px solid rgba(255, 0, 0, 0.4);
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   background: #ff0000;
   border-radius: 50%;
-  box-shadow: 0 0 10px #ff0000;
-  animation: pulse 1.5s infinite;
+  box-shadow: 0 0 12px #ff0000;
+  animation: heartbeat 2s infinite ease-in-out;
 }
 
 .status-text {
-  font-size: 0.7rem;
-  font-weight: bold;
+  font-size: 0.75rem;
+  font-weight: 900;
   color: #ff0000;
+  letter-spacing: 1.5px;
 }
 
-/* MESSAGES: Narrative Resonance */
+/* 4. MESSAGES CONTAINER - CHRONOS-COGNITIVE ARCHIVE */
 .messages-container {
   flex-grow: 1;
   overflow-y: auto;
-  margin: 20px 0;
-  padding: 20px;
+  margin: 25px 0;
+  padding: 25px;
   background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 242, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(0, 242, 255, 0.15);
   box-shadow: var(--border-glow);
   pointer-events: auto;
   scrollbar-width: thin;
@@ -111,20 +118,23 @@ body, html {
 }
 
 .welcome-message {
-  border-left: 3px solid var(--sovereign-gold);
-  padding-left: 15px;
-  margin-bottom: 20px;
+  border-left: 4px solid var(--sovereign-gold);
+  padding: 20px;
+  background: rgba(255, 179, 0, 0.05);
+  margin-bottom: 30px;
 }
 
 .welcome-message h2 {
   color: var(--sovereign-gold);
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
 }
 
 .message {
-  margin-bottom: 15px;
-  line-height: 1.5;
-  animation: fadeIn 0.5s ease-out;
+  margin-bottom: 20px;
+  line-height: 1.6;
+  font-size: 1rem;
+  animation: slideIn 0.4s ease-out;
 }
 
 .user-msg {
@@ -135,61 +145,73 @@ body, html {
 .system-msg {
   color: var(--omega-cyan);
   border-left: 2px solid var(--omega-cyan);
-  padding-left: 10px;
+  padding-left: 15px;
 }
 
-/* INPUT AREA: The Sovereign Gateway */
+/* 5. INPUT AREA - THE EXECUTION GATEWAY */
 .input-area {
   background: var(--glass-bg);
-  padding: 15px;
+  padding: 20px;
   border: 1px solid var(--omega-cyan);
-  box-shadow: var(--border-glow);
+  box-shadow: 0 0 25px rgba(0, 242, 255, 0.1);
   pointer-events: auto;
 }
 
 .input-wrapper {
   display: flex;
-  gap: 15px;
+  gap: 20px;
 }
 
 .message-input {
   flex-grow: 1;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(0, 242, 255, 0.3);
+  border-bottom: 2px solid rgba(0, 242, 255, 0.2);
   color: var(--omega-cyan);
-  padding: 10px;
+  padding: 12px;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 1.1rem;
   outline: none;
+  transition: border-color 0.3s;
+}
+
+.message-input:focus {
+  border-bottom-color: var(--omega-cyan);
 }
 
 .send-btn {
   background: transparent;
-  border: 1px solid var(--sovereign-gold);
-  padding: 5px 20px;
+  border: 2px solid var(--sovereign-gold);
+  padding: 10px 25px;
   cursor: pointer;
-  transition: all 0.3s;
+  color: var(--sovereign-gold);
+  font-size: 1.2rem;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .send-btn:hover:not(:disabled) {
   background: var(--sovereign-gold);
-  box-shadow: 0 0 20px var(--sovereign-gold);
+  color: var(--void-black);
+  box-shadow: 0 0 30px var(--sovereign-gold);
+  transform: scale(1.05);
 }
 
 .send-btn:disabled {
-  opacity: 0.3;
+  opacity: 0.2;
   cursor: not-allowed;
+  filter: grayscale(1);
 }
 
 .input-hint {
-  font-size: 0.7rem;
-  opacity: 0.5;
-  margin-top: 10px;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin-top: 12px;
   text-align: right;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-/* LOADING INDICATOR */
+/* 6. LOADING INDICATOR - THE COSMIC VOID */
 .loading-indicator {
   position: fixed;
   top: 0;
@@ -202,32 +224,38 @@ body, html {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  transition: opacity 0.5s;
+  transition: opacity 0.8s ease;
 }
 
 .loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 3px solid rgba(0, 242, 255, 0.1);
-  border-top: 3px solid var(--omega-cyan);
+  width: 70px;
+  height: 70px;
+  border: 4px solid rgba(0, 242, 255, 0.1);
+  border-top: 4px solid var(--omega-cyan);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 20px;
+  animation: rotate 1s linear infinite;
+  margin-bottom: 25px;
+  box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
 }
 
-/* ANIMATIONS */
-@keyframes pulse {
-  0% { opacity: 0.4; }
-  50% { opacity: 1; }
-  100% { opacity: 0.4; }
+/* 7. ANIMATION ARCHIVE */
+@keyframes heartbeat {
+  0% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.6; }
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* UTILITY: HIDE ELEMENTS */
+.hidden {
+  display: none !important;
 }
