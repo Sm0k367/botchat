@@ -1,6 +1,6 @@
 /**
  * TSL: CHRONOS-COGNITIVE ACCELERATOR vΩ.∞
- * Project: botchat (GitHub Pages Optimization)
+ * Project: Chaos Gateway (Epic Tech AI ™️)
  * Manifested by Codesynth Engineers & KeyMaster Ops
  * Objective: Enable SharedArrayBuffer for Zero-Key Local Inference
  */
@@ -20,7 +20,7 @@ if (typeof window === "undefined") {
                     if (response.status === 0) return response;
 
                     const newHeaders = new Headers(response.headers);
-                    // AXIOMATIC SECURITY INJECTION: Unlocking high-speed memory
+                    // AXIOMATIC SECURITY INJECTION: Unlocking high-speed memory for the Agent Army
                     newHeaders.set("Cross-Origin-Embedder-Policy", "require-corp");
                     newHeaders.set("Cross-Origin-Opener-Policy", "same-origin");
 
