@@ -1,23 +1,29 @@
 {
-  "name": "epic-botchat-nexus",
+  "name": "botchat-chaos-gateway",
   "version": "1.0.0",
-  "description": "Sovereign Intelligence Chat Interface | @Sm0ken420 x Epic Tech AI",
+  "description": "Epic Tech AI — Real-time 3D Chat | Multimedia Artist & Code Slinger Nexus",
   "type": "module",
-  "main": "api/chat.js",
+  "main": "main.js",
   "scripts": {
-    "start": "vercel dev",
-    "deploy": "vercel --prod"
+    "start": "npx servor public 8080 --browse",
+    "deploy": "gh-pages -d public"
   },
+  "keywords": [
+    "Epic-Tech-AI",
+    "Chaos-Gateway",
+    "Sovereign-Intelligence",
+    "WebGPU",
+    "Threejs"
+  ],
+  "author": "Sm0k367 & The Agent Army",
+  "license": "MIT",
   "dependencies": {
-    "node-fetch": "^3.3.0"
+    "@mlc-ai/web-llm": "^0.2.46",
+    "three": "^0.160.0",
+    "gsap": "^3.12.2",
+    "howler": "^2.2.4"
   },
-  "engines": {
-    "node": "24.x"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Sm0k367/botchat.git"
-  },
-  "author": "@Sm0ken420 x Epic Tech AI",
-  "license": "MIT"
+  "devDependencies": {
+    "gh-pages": "^6.1.1"
+  }
 }
