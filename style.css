@@ -1,0 +1,233 @@
+/**
+ * TSL: THE AESTHETIC LAW vΩ.∞
+ * Project: Chaos Gateway (Epic Tech AI ™️)
+ * Manifested by DesignCore Elite
+ */
+
+:root {
+  --omega-cyan: #00f2ff;
+  --spectral-magenta: #ff00c1;
+  --sovereign-gold: #ffb300;
+  --void-black: #050505;
+  --glass-bg: rgba(5, 5, 5, 0.85);
+  --border-glow: 0 0 15px rgba(0, 242, 255, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  background-color: var(--void-black);
+  color: var(--omega-cyan);
+  font-family: 'Courier New', Courier, monospace;
+  overflow: hidden;
+}
+
+/* 3D CANVAS SUBSTRATE */
+#canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* CHAT UI OVERLAY: Glassmorphism & Visual Law */
+.chat-ui {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 20px;
+  pointer-events: none; /* Allows 3D interaction behind UI */
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 242, 255, 0.2);
+  pointer-events: auto;
+}
+
+.title {
+  font-size: 1.8rem;
+  color: var(--sovereign-gold);
+  text-shadow: 0 0 10px var(--sovereign-gold);
+}
+
+.subtitle {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  letter-spacing: 1px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 0, 0, 0.1);
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 0, 0, 0.4);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #ff0000;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ff0000;
+  animation: pulse 1.5s infinite;
+}
+
+.status-text {
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #ff0000;
+}
+
+/* MESSAGES: Narrative Resonance */
+.messages-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin: 20px 0;
+  padding: 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 242, 255, 0.1);
+  box-shadow: var(--border-glow);
+  pointer-events: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--omega-cyan) transparent;
+}
+
+.welcome-message {
+  border-left: 3px solid var(--sovereign-gold);
+  padding-left: 15px;
+  margin-bottom: 20px;
+}
+
+.welcome-message h2 {
+  color: var(--sovereign-gold);
+  margin-bottom: 10px;
+}
+
+.message {
+  margin-bottom: 15px;
+  line-height: 1.5;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.user-msg {
+  color: var(--sovereign-gold);
+  font-weight: bold;
+}
+
+.system-msg {
+  color: var(--omega-cyan);
+  border-left: 2px solid var(--omega-cyan);
+  padding-left: 10px;
+}
+
+/* INPUT AREA: The Sovereign Gateway */
+.input-area {
+  background: var(--glass-bg);
+  padding: 15px;
+  border: 1px solid var(--omega-cyan);
+  box-shadow: var(--border-glow);
+  pointer-events: auto;
+}
+
+.input-wrapper {
+  display: flex;
+  gap: 15px;
+}
+
+.message-input {
+  flex-grow: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 242, 255, 0.3);
+  color: var(--omega-cyan);
+  padding: 10px;
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+}
+
+.send-btn {
+  background: transparent;
+  border: 1px solid var(--sovereign-gold);
+  padding: 5px 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.send-btn:hover:not(:disabled) {
+  background: var(--sovereign-gold);
+  box-shadow: 0 0 20px var(--sovereign-gold);
+}
+
+.send-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.input-hint {
+  font-size: 0.7rem;
+  opacity: 0.5;
+  margin-top: 10px;
+  text-align: right;
+}
+
+/* LOADING INDICATOR */
+.loading-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--void-black);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(0, 242, 255, 0.1);
+  border-top: 3px solid var(--omega-cyan);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+/* ANIMATIONS */
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
